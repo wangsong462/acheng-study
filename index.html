@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>阿澄的学习工作台</title>
+<style>
+/* ============================================================
+   阿澄的学习工作台 · 绿色护眼主题样式
+   ============================================================ */
+:root{
+  --green:        #4CAF50;   /* 主绿（侧边栏/顶栏） */
+  --green-light:  #55B85A;   /* 主绿渐变亮色 */
+  --green-dark:   #2E7D32;   /* 深绿（主按钮） */
+  --green-deep:   #1B5E20;   /* 更深绿（标题文字） */
+  --bg:           #E9F5E3;   /* 页面浅绿背景 */
+  --card:         #FFFFFF;   /* 卡片底色 */
+  --card-green:   #DDF1D2;   /* 题目卡片浅绿 */
+  --border:       #CBE7BC;   /* 卡片描边 */
+  --text:         #1F4020;   /* 正文深色 */
+  --muted:        #5B7A52;   /* 次要文字 */
+  --yellow:       #FFB300;   /* 太阳积分色 */
+  --red:          #E53935;   /* 录音红 */
+  --sidebar-w:    74px;      /* 侧边栏宽度 */
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:#D9EBD1;
+  color:var(--text);
+  overflow:hidden;
+  /* 适合小学生：禁止长按选中、禁止点选复制 */
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+}
+
+/* ---------- 整体骨架：左侧固定侧边栏 + 右侧内容 ---------- */
+#app{
+  display:flex;
+  height:100vh;          /* 旧浏览器回退 */
+  height:100dvh;         /* 手机动态视口，避开微信浏览器地址栏 */
+  max-width:480px;margin:0 auto;
+  background:var(--bg);
+  box-shadow:0 0 24px rgba(0,0,0,.12);
+}
+@media (min-width:520px){        /* 电脑预览时像一台手机 */
+  #app{height:calc(100dvh - 40px);margin:20px auto;border-radius:24px;overflow:hidden}
+}
+
+/* ---------- 左侧固定侧边导航栏 ---------- */
+.sidebar{
+  width:var(--sidebar-w);flex:0 0 var(--sidebar-w);
+  background:linear-gradient(180deg,var(--green-light),var(--green));
+  display:flex;flex-direction:column;align-items:center;
+  padding:10px 0 14px;gap:7px;overflow-y:auto;
+}
+.sidebar .logo{font-size:24px;margin-bottom:4px}
+.nav-item{
+  width:58px;padding:7px 0 6px;border:none;border-radius:14px;
+  background:rgba(255,255,255,.92);
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-size:12.5px;font-weight:700;color:var(--green-deep);
+  box-shadow:0 2px 4px rgba(0,0,0,.08);
+  cursor:pointer;touch-action:manipulation;
+}
+.nav-item .ico{font-size:21px;line-height:1.1;display:flex;align-items:center;justify-content:center;height:24px}
+.nav-item .ico.abc{                       /* “英语 abc”小图标（还原截图蓝色小方块） */
+  background:#90CAF9;color:#fff;border-radius:8px;
+  font-size:13px;font-weight:800;padding:3px 7px;height:auto;
+}
+.nav-item .ico.num{                       /* 数字徽章（如数学“3”代表三年级） */
+  background:var(--green);color:#fff;border-radius:50%;
+  width:22px;height:22px;font-size:13px;font-weight:800;
+}
+.nav-item:active{transform:scale(.94)}
+.nav-item.active{
+  background:#fff;
+  box-shadow:0 0 0 2px var(--yellow),0 3px 8px rgba(0,0,0,.18);
+}
+
+/* ---------- 右侧：顶部积分栏 + 滚动内容 ---------- */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
+.topbar{
+  height:54px;flex:0 0 54px;
+  background:linear-gradient(90deg,var(--green-light),var(--green));
+  display:flex;align-items:center;padding:0 10px;gap:7px;
+}
+.brand{display:flex;align-items:center;gap:5px;color:#fff;font-weight:800;font-size:14.5px;white-space:nowrap}
+.brand .sun-logo{font-size:19px}
+.sun-chip{
+  display:flex;align-items:center;gap:4px;background:#fff;border-radius:999px;
+  padding:4px 10px;font-weight:800;color:#E65100;font-size:15px;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.08);white-space:nowrap;
+}
+.progress-wrap{flex:1;display:flex;align-items:center;gap:6px;min-width:0}
+.progress{flex:1;height:12px;background:rgba(255,255,255,.35);border-radius:999px;overflow:hidden}
+.progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#FFD54F,#FFB300);border-radius:999px;transition:width .4s}
+.progress-text{color:#fff;font-weight:700;font-size:12px;white-space:nowrap}
+
+.content{flex:1;overflow-y:auto;padding:12px 12px 30px;-webkit-overflow-scrolling:touch}
+.page{display:none}
+.page.active{display:block}
+
+/* 右下角小僵尸装饰（还原截图角落小僵尸） */
+.deco{position:absolute;right:2px;bottom:4px;font-size:42px;opacity:.5;pointer-events:none;z-index:1}
+
+/* ---------- 通用卡片 / 标题 ---------- */
+.card{
+  background:var(--card);border:1.5px solid var(--border);border-radius:18px;
+  padding:14px;margin-bottom:14px;
+  box-shadow:0 2px 6px rgba(46,125,50,.07);
+}
+.card h2{font-size:17.5px;font-weight:800;color:var(--green-deep);display:flex;align-items:center;gap:7px}
+.subtitle{font-size:12.5px;color:var(--muted);margin:5px 0 12px;line-height:1.5}
+.page-title{font-size:20px;font-weight:800;color:var(--green-deep);margin:2px 2px 12px;display:flex;align-items:center;gap:8px}
+
+/* 课文/古诗切换胶囊按钮 */
+.pill{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--green-dark);color:#fff;font-weight:700;font-size:14.5px;
+  border:none;border-radius:999px;padding:8px 15px;cursor:pointer;
+  box-shadow:0 2px 0 var(--green-deep);touch-action:manipulation;
+}
+.pill:active{transform:translateY(2px);box-shadow:none}
+.pill .caret{font-size:11px;opacity:.9}
+
+/* 题目卡片（浅绿底） */
+.q-card{
+  background:var(--card-green);border-radius:14px;padding:12px 14px;
+  font-size:16.5px;font-weight:700;line-height:1.55;color:var(--text);
+  margin:10px 0 12px;
+}
+/* 选项按钮：白底绿边，答对变绿、答错变红并高亮正确答案 */
+.opt{
+  display:block;width:100%;text-align:left;background:#fff;
+  border:2px solid var(--border);border-radius:14px;
+  padding:12px 14px;margin-bottom:10px;
+  font-size:16px;font-weight:600;color:#0F5132;
+  cursor:pointer;touch-action:manipulation;transition:background .15s,border-color .15s;
+}
+.opt:active{background:#F1F9EC}
+.opt.correct{background:#DFF3DC;border-color:var(--green);color:var(--green-deep)}
+.opt.wrong{background:#FDECEA;border-color:var(--red);color:#B71C1C}
+.opt:disabled{cursor:default;opacity:1}
+
+/* 按钮行：下一题 + 已完成标识 */
+.btn-row{display:flex;gap:10px;margin-top:12px;align-items:center}
+.btn-primary{
+  background:var(--green-dark);color:#fff;border:none;border-radius:999px;
+  padding:11px 22px;font-size:16px;font-weight:800;cursor:pointer;
+  box-shadow:0 3px 0 var(--green-deep);touch-action:manipulation;
+}
+.btn-primary:active{transform:translateY(2px);box-shadow:0 1px 0 var(--green-deep)}
+.badge-done{
+  background:#E4E4E4;color:#7A7A7A;border-radius:999px;
+  padding:9px 15px;font-size:14px;font-weight:800;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.badge-done.on{background:#DFF3DC;color:var(--green-deep);border:2px solid var(--green)}
+.btn-record{
+  width:100%;margin-top:6px;background:var(--green-dark);color:#fff;
+  border:none;border-radius:999px;padding:14px;font-size:16.5px;font-weight:800;
+  cursor:pointer;box-shadow:0 3px 0 var(--green-deep);touch-action:manipulation;
+}
+.btn-record:active{transform:translateY(2px);box-shadow:0 1px 0 var(--green-deep)}
+
+/* 答题反馈文字 */
+.feedback{margin-top:10px;font-size:14.5px;font-weight:700;min-height:22px;line-height:1.5}
+.feedback.ok{color:var(--green-dark)}
+.feedback.no{color:#C62828}
+.progress-hint{font-size:12.5px;color:var(--muted);margin-top:8px;font-weight:600}
+
+/* ---------- 商店：植物卡片 ---------- */
+.plant{
+  position:relative;background:#fff;border:2px solid var(--border);border-radius:16px;
+  padding:16px 10px 14px;margin-bottom:12px;text-align:center;cursor:pointer;
+  touch-action:manipulation;transition:transform .1s;
+}
+.plant:active{transform:scale(.97);border-color:var(--green)}
+.plant .emo{font-size:44px;line-height:1.2}
+.plant .name{font-size:17px;font-weight:800;color:var(--text);margin-top:6px}
+.plant .price{color:#E65100;font-weight:800;font-size:15.5px;margin-top:3px}
+.plant .owned{
+  position:absolute;top:8px;right:8px;background:#DFF3DC;color:var(--green-deep);
+  border:1.5px solid var(--green);border-radius:999px;padding:2px 9px;
+  font-size:12px;font-weight:800;
+}
+
+/* ---------- 花园：已购植物格子 ---------- */
+.garden-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.g-item{background:var(--card-green);border:1.5px solid var(--border);border-radius:14px;padding:14px 4px 10px;text-align:center}
+.g-item .emo{font-size:36px;line-height:1.2}
+.g-item .name{font-size:13.5px;font-weight:800;color:var(--green-deep);margin-top:5px}
+.g-item .count{font-size:12px;color:var(--muted);font-weight:700;margin-top:2px}
+.garden-empty{text-align:center;padding:34px 10px}
+.garden-empty .big{font-size:56px}
+.garden-empty p{font-size:15.5px;font-weight:700;color:var(--muted);line-height:1.8;margin:10px 0 16px}
+
+/* ---------- 弹窗（遮罩 + 居中模态框） ---------- */
+.mask{
+  position:fixed;inset:0;background:rgba(20,40,15,.5);
+  display:none;align-items:center;justify-content:center;z-index:50;padding:20px;
+}
+.mask.show{display:flex}
+.modal{
+  background:#fff;border-radius:22px;width:100%;max-width:360px;padding:20px;
+  position:relative;animation:pop .22s ease;max-height:86vh;overflow-y:auto;
+}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h3{font-size:18.5px;font-weight:800;color:var(--green-deep);display:flex;align-items:center;gap:8px}
+.modal .close{
+  position:absolute;top:10px;right:14px;font-size:24px;font-weight:800;
+  color:#1E88E5;background:none;border:none;cursor:pointer;line-height:1;padding:4px;
+}
+/* 课文/古诗选择列表 */
+.pick-list{margin-top:14px}
+.pick-item{
+  display:flex;align-items:center;width:100%;text-align:left;
+  background:#fff;border:2px solid var(--border);border-radius:14px;
+  padding:12px 14px;margin-bottom:8px;font-size:14.5px;font-weight:700;color:var(--text);
+  cursor:pointer;touch-action:manipulation;
+}
+.pick-item .st{margin-left:auto;font-size:12px;color:var(--muted);font-weight:700;white-space:nowrap;padding-left:8px}
+.pick-item.active{border-color:var(--green-dark);background:#F1F9EC}
+
+/* ---------- 古诗背诵录音弹窗 ---------- */
+.poem-card{background:var(--card-green);border-radius:16px;padding:16px 14px;margin:14px 0 6px;text-align:center}
+.poem-card .pt{font-size:17.5px;font-weight:800;color:var(--green-deep)}
+.poem-card .pl{font-size:16.5px;line-height:2.05;color:#1F4020;font-weight:600;margin-top:4px}
+.mic-wrap{text-align:center;margin-top:10px}
+.mic{
+  width:88px;height:88px;border-radius:50%;border:4px solid var(--red);background:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:34px;margin:6px auto;
+  cursor:pointer;touch-action:manipulation;
+}
+.mic:active{transform:scale(.95)}
+.mic.recording{background:#FFEBEE;animation:pulse 1.2s infinite}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(229,57,53,.45)}
+  70%{box-shadow:0 0 0 16px rgba(229,57,53,0)}
+  100%{box-shadow:0 0 0 0 rgba(229,57,53,0)}
+}
+.mic-tip{text-align:center;font-size:13.5px;color:var(--muted);font-weight:700;margin-bottom:16px;min-height:20px}
+.btn-submit{
+  width:100%;background:var(--green-dark);color:#fff;border:none;border-radius:999px;
+  padding:14px;font-size:16.5px;font-weight:800;cursor:pointer;
+  box-shadow:0 3px 0 var(--green-deep);touch-action:manipulation;
+}
+.btn-submit:disabled{background:#BDBDBD;box-shadow:none;cursor:default}
+.btn-submit:not(:disabled):active{transform:translateY(2px);box-shadow:0 1px 0 var(--green-deep)}
+
+/* ---------- 轻提示 Toast ---------- */
+#toast{
+  position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(16px);
+  background:rgba(27,94,32,.94);color:#fff;padding:11px 20px;border-radius:999px;
+  font-size:14.5px;font-weight:700;opacity:0;pointer-events:none;transition:.28s;
+  z-index:99;max-width:82%;text-align:center;line-height:1.5;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.abc-big{font-size:44px;font-weight:800;color:#1E88E5;letter-spacing:2px}
+
+/* ============================================================
+   对对碰 · 记忆翻牌
+   ============================================================ */
+.level-row{display:flex;gap:8px;margin:10px 0 4px;flex-wrap:wrap}
+.pill.small{font-size:13px;padding:7px 13px}
+.pill.lv-active{background:var(--green-deep);box-shadow:0 0 0 2px var(--yellow),0 2px 0 var(--green-deep)}
+.match-grid{display:grid;gap:10px;margin:12px 0 4px}
+.match-grid.cols3{grid-template-columns:repeat(3,1fr)}
+.match-grid.cols4{grid-template-columns:repeat(4,1fr)}
+.match-grid.cols5{grid-template-columns:repeat(5,1fr)}
+.flip{perspective:600px;aspect-ratio:3/4;border:none;background:none;padding:0;cursor:pointer;touch-action:manipulation}
+.flip .inner{position:relative;width:100%;height:100%;transition:transform .35s;transform-style:preserve-3d}
+.flip.flipped .inner{transform:rotateY(180deg)}
+.flip .face{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(22px,7vw,32px);border:2px solid var(--border);
+}
+.flip .back{background:linear-gradient(135deg,#66BB6A,#43A047);color:#fff}
+.flip .front{background:#fff;transform:rotateY(180deg)}
+.flip.matched .front{background:#DFF3DC;border-color:var(--green);box-shadow:0 0 0 2px #FFE082}
+.flip.matched{animation:matchpop .3s}
+@keyframes matchpop{50%{transform:scale(1.12)}}
+.flip:disabled{cursor:default}
+
+/* ============================================================
+   抓大鹅 · 限时反应游戏
+   ============================================================ */
+.duck-hud{display:flex;gap:10px;margin:12px 0}
+.hud-box{flex:1;background:var(--card-green);border:1.5px solid var(--border);border-radius:14px;padding:9px 4px;text-align:center}
+.hud-box .v{font-size:21px;font-weight:800;color:var(--green-deep);line-height:1.2}
+.hud-box .k{font-size:11.5px;color:var(--muted);font-weight:700;margin-top:2px}
+.duck-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:6px 0 14px}
+.duck-grid.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}}
+.hole{
+  position:relative;height:96px;border-radius:50% 50% 14px 14px;
+  background:radial-gradient(ellipse at center,#8D6E63 0%,#6D4C41 70%);
+  border:3px solid #5D4037;overflow:hidden;cursor:pointer;
+  box-shadow:inset 0 8px 12px rgba(0,0,0,.25);
+}
+.duck-pop{position:absolute;left:50%;bottom:-70px;transform:translateX(-50%);font-size:42px;transition:bottom .18s ease;line-height:1;pointer-events:none}
+.duck-pop.show{bottom:8px}
+
+/* 游戏结算卡片（对对碰 / 抓大鹅 共用） */
+.game-result{background:var(--card-green);border:2px solid var(--green);border-radius:16px;padding:16px 12px;text-align:center;margin-top:8px}
+.game-result .big{font-size:21px;font-weight:800;color:var(--green-deep)}
+.game-result .stars{font-size:26px;margin:6px 0;letter-spacing:4px}
+.game-result .sub{margin:4px 0 12px}
+
+/* ============================================================
+   运动打卡
+   ============================================================ */
+.sport-item{
+  display:flex;align-items:center;width:100%;text-align:left;background:#fff;
+  border:2px solid var(--border);border-radius:16px;padding:14px 15px;margin-bottom:11px;
+  font-size:16.5px;font-weight:700;color:var(--text);cursor:pointer;touch-action:manipulation;
+}
+.sport-item:active{transform:scale(.98)}
+.sport-item .ico{font-size:26px;margin-right:12px}
+.sport-item.done{background:#DFF3DC;border-color:var(--green);color:var(--green-deep)}
+.sport-item.done .txt{text-decoration:line-through;opacity:.75}
+.sport-item .ck{margin-left:auto;font-size:13.5px;font-weight:800;color:var(--muted)}
+.sport-item.done .ck{color:var(--green-dark)}
+.week-dots{display:flex;gap:6px;justify-content:space-between;margin-top:8px}
+.day-dot{flex:1;text-align:center}
+.day-dot .d{width:30px;height:30px;border-radius:50%;background:#E4E4E4;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#8a8a8a}
+.day-dot.on .d{background:var(--green);color:#fff}
+.day-dot .l{font-size:10px;color:var(--muted);margin-top:3px;font-weight:700}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- 左侧固定侧边导航栏（由 JS 生成 8 个入口） -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- 右侧主体 -->
+  <div class="main">
+    <!-- 顶部：向日葵 + 标题 + 太阳积分 + 进度条 -->
+    <header class="topbar">
+      <div class="brand"><span class="sun-logo">🌻</span><span>阿澄的学习工作台</span></div>
+      <div class="sun-chip">☀️&nbsp;<span id="sunNum">0</span></div>
+      <div class="progress-wrap">
+        <div class="progress"><i id="sunBar"></i></div>
+        <span class="progress-text" id="sunText">0/10</span>
+      </div>
+    </header>
+
+    <!-- 可滚动内容区：每个导航对应一个页面 -->
+    <div class="content" id="content">
+      <section class="page" id="page-chinese"></section>
+      <section class="page" id="page-math"></section>
+      <section class="page" id="page-english"></section>
+      <section class="page" id="page-sport"></section>
+      <section class="page" id="page-match"></section>
+      <section class="page" id="page-duck"></section>
+      <section class="page" id="page-garden"></section>
+      <section class="page" id="page-shop"></section>
+    </div>
+
+    <!-- 右下角小僵尸装饰 -->
+    <div class="deco">🧟</div>
+  </div>
+</div>
+
+<!-- 弹窗1：选择课文 / 单元 / 古诗（通用，由 JS 按类型填充） -->
+<div class="mask" id="mask-pick">
+  <div class="modal">
+    <h3 id="pickTitle">📚 选择课文</h3>
+    <button class="close" data-act="close-mask" data-target="mask-pick">✕</button>
+    <div class="pick-list" id="pickList"></div>
+  </div>
+</div>
+
+<!-- 弹窗3：古诗背诵录音 -->
+<div class="mask" id="mask-record">
+  <div class="modal">
+    <h3>🎤 古诗背诵录音</h3>
+    <button class="close" data-act="close-mask" data-target="mask-record">✕</button>
+    <div class="poem-card">
+      <div class="pt" id="recTitle">山行 · 杜牧</div>
+      <div class="pl" id="recLines"></div>
+    </div>
+    <div class="mic-wrap">
+      <div class="mic" id="micBtn" data-act="rec-toggle">🎤</div>
+      <div class="mic-tip" id="micTip">点击开始录音</div>
+    </div>
+    <button class="btn-submit" id="recSubmit" data-act="rec-submit" disabled>📮 提交背诵</button>
+  </div>
+</div>
+
+<!-- 轻提示 -->
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+ * 阿澄的学习工作台 —— 纯前端 H5（无后端 / 无登录）
+ * 适配：微信内置浏览器，绿色护眼风格
+ * ------------------------------------------------------------
+ * ★ 想添加题目 / 修改题库？只需改下面几个数据数组：
+ *   1) LESSONS     —— 语文：26课课文预习题（每课 8 道单选题）
+ *   2) MATH_UNITS  —— 数学：9个单元同步题（每单元 8 道单选题）
+ *   3) EN_UNITS    —— 英语：6个单元同步题（每单元 8 道单选题）
+ *   4) POEMS       —— 语文：6首必背古诗（全文 + 单选题）
+ *   5) PLANTS      —— 商店植物（名称/emoji/价格）
+ *   6) SPORT_ITEMS —— 运动打卡清单（数组增删即可）
+ *   7) MATCH_LEVELS/ MATCH_EMOJIS —— 对对碰难度与牌面
+ *   字段说明：q=题干  o=选项数组  a=正确选项下标(从0开始)
+ * 改完保存刷新即可生效，无需其他改动。
+ * ============================================================ */
+
+/* ---------- 1. 配置 ---------- */
+// 顶部进度条目标分（截图为 5/10）。
+// 说明：积分可以超过 10 分，超出后进度条保持满格、数字照常累加，
+//      商店植物价格(50~120☀️)才能正常兑换。
+//      若你希望积分硬上限为 10：把 HARD_CAP 改成 true
+//      （但同时需要把 PLANTS 里的价格一起调低，否则永远买不起）。
+var POINT_GOAL = 10;   // 进度条目标：x/10
+var HARD_CAP   = false;// true=积分最多10分；false=可累积
+var LESSON_BONUS = 1;  // 一课/一单元全部答对的额外奖励太阳数
+
+/* ---------- 2. 数据：26课课文题库（人教版三年级上册） ---------- */
+var LESSONS = [
+  {t:'大青树下的小学', qs:[
+    {q:'这篇课文描写的是什么地方？', o:['民族小学','城市小学','国外学校'], a:0},
+    {q:'学校里有哪些小朋友一起上学？', o:['汉族和许多少数民族的小朋友','只有汉族小朋友','只有外国小朋友'], a:0},
+    {q:'上课的时候，窗外的鸟儿、蝴蝶在做什么？', o:['安静地听同学们读课文','叽叽喳喳地大叫','飞进教室里玩'], a:0},
+    {q:'下课后，同学们在大青树下做什么？', o:['跳孔雀舞、摔跤、做游戏','打篮球、踢足球','安安静静地看书'], a:0},
+    {q:'这所小学的环境有什么特别之处？', o:['有古老的大青树，还挂着铜钟','到处是高楼大厦','学校建在大海边'], a:0},
+    {q:'早晨，孩子们是从哪些地方走来的？', o:['山坡上、坪坝里、开着小花的小路上','从教室里','从操场上'], a:0},
+    {q:'课文开头写道，不同民族的小学生怎么样？', o:['在同一间教室里一起学习','分开在不同学校','只在一起玩，不一起上课'], a:0},
+    {q:'这篇课文表达了作者怎样的感情？', o:['对这所民族小学的喜爱和赞美','对城市学校的羡慕','对小动物的害怕'], a:0}
+  ]},
+  {t:'花的学校', qs:[
+    {q:'《花的学校》的作者是谁？', o:['泰戈尔','安徒生','格林兄弟'], a:0},
+    {q:'花儿们在绿草上做什么？', o:['狂欢地跳舞','呼呼睡大觉','排队赶路'], a:0},
+    {q:'课文把花儿比作什么？', o:['放了学的孩子','漂亮的蝴蝶','勤劳的蜜蜂'], a:0},
+    {q:'什么时候，花儿们就“放假了”？', o:['大雨到来的时候','太阳出来的时候','冬天刮风的时候'], a:0},
+    {q:'花儿们的学校在哪里？', o:['在地下','在高山上','在大海里'], a:0},
+    {q:'润湿的东风走过荒野时在做什么？', o:['在竹林里吹着口笛','在花丛中睡觉','在山顶上跑步'], a:0},
+    {q:'“树枝互相碰触，绿叶簌簌地响”写出了什么？', o:['风雨来了，大自然很热闹','大树在吵架','大树生病了'], a:0},
+    {q:'这首诗的语言给你什么感觉？', o:['活泼优美，充满想象力','枯燥难懂','简单得没有味道'], a:0}
+  ]},
+  {t:'不懂就要问', qs:[
+    {q:'课文讲的是谁小时候的故事？', o:['孙中山','毛泽东','鲁迅'], a:0},
+    {q:'孙中山在私塾读书时遇到了什么难题？', o:['不懂书里话的意思','不喜欢新书包','嫌课文太短'], a:0},
+    {q:'孙中山想出了什么办法解决难题？', o:['大胆向先生提问','抄同学的作业','逃学不去了'], a:0},
+    {q:'先生原本拿着什么让大家背书？', o:['戒尺','课本','毛笔'], a:0},
+    {q:'孙中山说为了弄清道理，即使怎样也值得？', o:['挨打','挨饿','花钱'], a:0},
+    {q:'私塾里的学生是怎样学习的？', o:['大声背诵课文','自己做实验','跟着先生出游'], a:0},
+    {q:'“学问学问，不懂就要问”这句话告诉我们？', o:['遇到不懂的要敢于提问','只学不问最好','问别人会丢面子'], a:0},
+    {q:'你认为孙中山是个怎样的孩子？', o:['勤学好问、勇敢','胆小怕事','不爱学习'], a:0}
+  ]},
+  {t:'古诗三首', qs:[
+    {q:'《山行》的作者是谁？', o:['杜牧','李白','杜甫'], a:0},
+    {q:'“停车坐爱枫林晚”中“坐”是什么意思？', o:['因为','坐下','乘坐'], a:0},
+    {q:'“霜叶红于二月花”写的是什么季节？', o:['深秋','初春','盛夏'], a:0},
+    {q:'《赠刘景文》的作者是谁？', o:['苏轼','李白','白居易'], a:0},
+    {q:'《夜书所见》中“挑促织”的“促织”指什么？', o:['蟋蟀','知了','蜻蜓'], a:0},
+    {q:'“白云生处有人家”写出了什么景象？', o:['深山远处有人居住','城市里楼房很多','海上有渔船'], a:0},
+    {q:'“菊残犹有傲霜枝”赞美了菊花什么品格？', o:['不畏寒霜、坚强','颜色最鲜艳','长得最高大'], a:0},
+    {q:'《夜书所见》中“江上秋风”触发了诗人怎样的情感？', o:['思念家乡','非常高兴','害怕寒冷'], a:0}
+  ]},
+  {t:'铺满金色巴掌的水泥道', qs:[
+    {q:'“金色巴掌”指的是什么？', o:['法国梧桐树的落叶','红色的枫叶','黄色的小扇子'], a:0},
+    {q:'这些“金色巴掌”铺在了哪里？', o:['门前的水泥道上','小河里','屋顶上'], a:0},
+    {q:'课文中的“我”觉得水泥道怎么样？', o:['像彩色的地毯，很美','又脏又乱','普普通通'], a:0},
+    {q:'这是哪个季节的早晨？', o:['秋天','春天','夏天'], a:0},
+    {q:'“我”发现美的地方是什么态度？', o:['细心观察、喜欢大自然','毫不在意','只想快点到学校'], a:0},
+    {q:'从“怕上课迟到”可以看出这是什么时间？', o:['上学的早晨','放学后的傍晚','周末的下午'], a:0},
+    {q:'课文把“我”的棕红色小雨靴比作什么？', o:['棕红色的小鸟','金色的小船','彩色的蝴蝶'], a:0},
+    {q:'作者为什么能发现水泥道的美？', o:['有一双善于观察的眼睛','别人告诉他的','老师布置的作业'], a:0}
+  ]},
+  {t:'秋天的雨', qs:[
+    {q:'秋天的雨被比作什么？', o:['一把钥匙','一盒颜料','一个小喇叭'], a:0},
+    {q:'秋天的雨带给大地什么？', o:['五彩缤纷的颜料','温暖的棉衣','好吃的糖果'], a:0},
+    {q:'梨在秋天的雨里是什么味道？', o:['香香的','酸酸的','苦苦的'], a:0},
+    {q:'小喜鹊衔来树枝做什么？', o:['造房子','玩游戏','送给朋友'], a:0},
+    {q:'松柏在秋天的雨里穿上什么？', o:['油亮亮的衣裳','厚厚的棉衣','花裙子'], a:0},
+    {q:'秋天的雨吹起了什么？', o:['金色的小喇叭','长长的口哨','圆圆的小号'], a:0},
+    {q:'小青蛙在做什么准备过冬？', o:['加紧挖洞','在荷叶上跳舞','忙着捉虫子'], a:0},
+    {q:'秋天的雨告诉大家一个什么消息？', o:['冬天快要来了','春天已经来了','暑假马上到了'], a:0}
+  ]},
+  {t:'听听，秋的声音', qs:[
+    {q:'这是一篇什么体裁的课文？', o:['诗歌','童话故事','寓言故事'], a:0},
+    {q:'大树抖抖手臂，道别的是谁？', o:['黄叶','小鸟','果实'], a:0},
+    {q:'是谁振动翅膀唱着告别的歌？', o:['蟋蟀','青蛙','蝈蝈'], a:0},
+    {q:'秋风掠过田野，送来什么？', o:['丰收的歌吟','冬天的消息','阵阵花香'], a:0},
+    {q:'这首诗写的是哪个季节？', o:['秋天','春天','冬天'], a:0},
+    {q:'“一排排大雁追上白云”描写大雁在做什么？', o:['排着队向南方飞去','在白云里捉迷藏','站在白云上休息'], a:0},
+    {q:'秋的声音在哪里可以听到？', o:['广阔的大自然里','只在教室里','只在梦里'], a:0},
+    {q:'朗读这首诗应该用什么语气？', o:['轻快、有感情','大声喊叫','又慢又难过'], a:0}
+  ]},
+  {t:'卖火柴的小女孩', qs:[
+    {q:'《卖火柴的小女孩》的作者是谁？', o:['安徒生','格林兄弟','伊索'], a:0},
+    {q:'小女孩一共擦燃了几次火柴？', o:['五次','三次','一次'], a:0},
+    {q:'小女孩擦燃火柴最先看到了什么？', o:['暖烘烘的大火炉','喷香的烤鹅','美丽的圣诞树'], a:0},
+    {q:'小女孩最后一次看到的是谁？', o:['慈祥的奶奶','妈妈','小天使'], a:0},
+    {q:'这个故事发生在什么夜晚？', o:['大年夜','中秋夜','平安夜的早晨'], a:0},
+    {q:'小女孩为什么不敢回家？', o:['没卖掉火柴，怕爸爸打她','忘了带钥匙','想去亲戚家玩'], a:0},
+    {q:'小女孩看到烤鹅时，烤鹅怎么了？', o:['背着刀叉向她走来','拍拍翅膀飞走了','变成了硬石头'], a:0},
+    {q:'这个故事想告诉我们什么？', o:['要关爱穷苦的孩子','火柴很好吃','冬天实在太冷了'], a:0}
+  ]},
+  {t:'那一定会很好', qs:[
+    {q:'故事一开始，“它”是什么？', o:['一粒种子','一棵大树','一辆手推车'], a:0},
+    {q:'种子长大以后变成了什么？', o:['一棵大树','一朵小花','一颗小草'], a:0},
+    {q:'大树被木匠做成了什么？', o:['一辆手推车','一张桌子','一座小桥'], a:0},
+    {q:'手推车后来变成了什么？', o:['一把椅子','一个木偶','一辆汽车'], a:0},
+    {q:'椅子最后变成了什么？', o:['木地板','一堆木柴','一个书架'], a:0},
+    {q:'“它”每一次变化时都保持着什么想法？', o:['“那一定会很好”的乐观','想变回从前的样子','想快点坏掉'], a:0},
+    {q:'手推车为什么跑不动了？', o:['用了很多年，老了','从来没被用过','被大雨淋坏了'], a:0},
+    {q:'从这个故事我们学到什么？', o:['坦然面对变化，每样东西都有用处','东西越新越好','不要当椅子'], a:0}
+  ]},
+  {t:'在牛肚子里旅行', qs:[
+    {q:'故事里的两只小昆虫是谁和谁？', o:['蟋蟀红头和青头','蚂蚱和螳螂','蚂蚁和瓢虫'], a:0},
+    {q:'红头是怎么被吞进牛肚子里的？', o:['牛吃草时被卷了进去','自己故意跳进去','被青头推下去'], a:0},
+    {q:'青头靠什么知识救了红头？', o:['牛会反刍，食物会回到嘴里','牛只喝水不消化','牛肚子是透明的'], a:0},
+    {q:'牛有几个胃？', o:['四个','两个','一个'], a:0},
+    {q:'这个故事告诉我们遇到危险要怎样？', o:['冷静、动脑筋想办法','大哭大闹','只能等别人来救'], a:0},
+    {q:'红头害怕的时候，青头是怎么做的？', o:['鼓励它，教它想办法','自己吓得逃走了','跟着哭起来'], a:0},
+    {q:'牛肚子里前三个胃是做什么的？', o:['贮藏食物','消化食物','一点用也没有'], a:0},
+    {q:'牛反刍的时候，食物会怎样？', o:['回到嘴里再嚼一次','直接消化掉','吐出去扔掉'], a:0}
+  ]},
+  {t:'一块奶酪', qs:[
+    {q:'蚂蚁们在搬运什么？', o:['一块奶酪','一块面包','一粒大米'], a:0},
+    {q:'从奶酪上掉下来的小渣叫什么？', o:['奶酪渣','蛋糕渣','饼干渣'], a:0},
+    {q:'看到奶酪渣，蚂蚁队长一开始想怎么做？', o:['偷偷自己吃掉','马上分给大家','扔进草丛'], a:0},
+    {q:'最后奶酪渣到了谁的嘴里？', o:['年纪最小的蚂蚁','蚂蚁队长','蚂蚁奶奶'], a:0},
+    {q:'蚂蚁队长身上最值得我们学的是什么？', o:['严于律己、遵守纪律','跑得最快','力气最大'], a:0},
+    {q:'搬运奶酪前，蚂蚁队长向大家宣布了什么纪律？', o:['只许出力，不许偷嘴','谁搬得多谁先吃','年轻蚂蚁先吃'], a:0},
+    {q:'最小的蚂蚁为什么能吃到奶酪渣？', o:['蚂蚁队长主动让给它','它抢到的','它个头最大'], a:0},
+    {q:'大伙儿对蚂蚁队长的做法是什么态度？', o:['夸赞它','嘲笑它','谁也没注意'], a:0}
+  ]},
+  {t:'总也倒不了的老屋', qs:[
+    {q:'老屋为什么总也倒不了？', o:['它一直在帮助小动物','它实在太结实','没有人去拆它'], a:0},
+    {q:'第一个请老屋帮忙的是谁？', o:['小猫','老母鸡','小蜘蛛'], a:0},
+    {q:'老母鸡请老屋再站多久？', o:['二十一天','一个月','一天'], a:0},
+    {q:'最后请老屋帮忙的是谁？', o:['小蜘蛛','小山羊','小鸟'], a:0},
+    {q:'老屋给你什么印象？', o:['慈祥又乐于助人','凶巴巴的','懒洋洋的'], a:0},
+    {q:'小猫请求老屋帮助时说了什么？', o:['外面的暴风雨太大了','我要在屋里捉老鼠','我迷路了'], a:0},
+    {q:'老屋每次准备倒下时，都有谁来求助？', o:['需要帮助的小动物','来拆房子的工人','一群大风'], a:0},
+    {q:'这个故事想告诉我们什么？', o:['帮助别人能让自己更有价值','老屋应该早点倒下','小动物都很坏'], a:0}
+  ]},
+  {t:'胡萝卜先生的长胡子', qs:[
+    {q:'胡萝卜先生的胡子为什么变长了？', o:['沾上了有营养的果酱','被风呼呼吹长的','喝了神奇药水'], a:0},
+    {q:'谁用胡子当作了放风筝的线？', o:['小男孩','小女孩','老爷爷'], a:0},
+    {q:'谁把胡子当成了晾尿布的绳子？', o:['鸟太太','青蛙阿姨','刺猬姐姐'], a:0},
+    {q:'胡萝卜先生知道自己的胡子派上大用场了吗？', o:['不知道，他漏刮了一根胡子','一清二楚','早就剪掉了'], a:0},
+    {q:'这个故事发生在哪里？', o:['一条长街上','大森林里','学校里'], a:0},
+    {q:'胡萝卜先生每天必须做什么？', o:['刮胡子','戴围巾','刷鞋子'], a:0},
+    {q:'小男孩放风筝时遇到什么困难？', o:['风筝线太短','没有风','风筝坏了'], a:0},
+    {q:'从故事中可以看出胡萝卜先生是个怎样的人？', o:['热心肠，帮了别人自己却不知道','爱发脾气','特别小气'], a:0}
+  ]},
+  {t:'小狗学叫', qs:[
+    {q:'小狗遇到的最大难题是什么？', o:['它不会叫','它不会跑','它没有朋友'], a:0},
+    {q:'小狗先跟谁学叫？', o:['小公鸡','杜鹃鸟','小母狗'], a:0},
+    {q:'跟杜鹃学叫时，小狗差点遇到什么危险？', o:['被猎人开枪打中','掉进大水坑','被老虎抓住'], a:0},
+    {q:'最后是谁教小狗学会了真正的叫声？', o:['小母狗','小公鸡','杜鹃鸟'], a:0},
+    {q:'这个故事想告诉我们什么？', o:['适合自己的才是最好的','学叫没有用','狐狸最聪明'], a:0},
+    {q:'狐狸为什么要“教”小狗叫？', o:['想捉弄它、吃掉它','真心在教它','闲着没事做'], a:0},
+    {q:'猎人差点开枪，是因为他把小狗的叫声当成了什么？', o:['杜鹃的叫声','狼的叫声','风声'], a:0},
+    {q:'小狗最后学会“汪汪”叫，是因为？', o:['遇到了小母狗，知道了自己的声音','每天刻苦练习','小公鸡教它的'], a:0}
+  ]},
+  {t:'搭船的鸟', qs:[
+    {q:'“搭船的鸟”指的是什么鸟？', o:['翠鸟','啄木鸟','麻雀'], a:0},
+    {q:'翠鸟的羽毛是什么颜色的？', o:['翠绿翠绿的','雪白雪白的','乌黑乌黑的'], a:0},
+    {q:'翠鸟有一张什么样的长嘴？', o:['红色的','黄色的','黑色的'], a:0},
+    {q:'翠鸟站在船头做什么？', o:['搭船赶路、捕鱼吃','睡觉','躲雨'], a:0},
+    {q:'翠鸟捕鱼的动作怎么样？', o:['又猛又快','又慢又轻','躲在水草里不动'], a:0},
+    {q:'翠鸟出现在船头时，天气怎样？', o:['雨刚刚停了','正下着大雨','烈日当空'], a:0},
+    {q:'翠鸟捕鱼用了多长时间？', o:['一瞬间','一个小时','整整一下午'], a:0},
+    {q:'翠鸟的外形给你什么印象？', o:['鲜艳美丽','灰灰土土','个头很大'], a:0}
+  ]},
+  {t:'金色的草地', qs:[
+    {q:'草地早晨和晚上是什么颜色？', o:['绿色的','金色的','红色的'], a:0},
+    {q:'草地中午是什么颜色？', o:['金色的','绿色的','白色的'], a:0},
+    {q:'草地变色跟什么有关？', o:['蒲公英的花瓣会开合','阳光会变魔术','风吹草儿摇'], a:0},
+    {q:'“我们”在金色的草地上做什么？', o:['玩耍、吹蒲公英','睡大觉','放风筝'], a:0},
+    {q:'“我们”住在哪里？', o:['乡下','大城市','海边渔村'], a:0},
+    {q:'蒲公英的花什么时候是金色的？', o:['花朵张开的时候','花朵合拢的时候','下雨的时候'], a:0},
+    {q:'课文说蒲公英的花像我们身体的什么？', o:['手掌','眼睛','耳朵'], a:0},
+    {q:'为什么说蒲公英很可爱？', o:['它给草地带来了变化和乐趣','它会飞得很高','它很香'], a:0}
+  ]},
+  {t:'古诗三首', qs:[
+    {q:'《望天门山》的作者是谁？', o:['李白','杜甫','白居易'], a:0},
+    {q:'“天门中断楚江开”中的“楚江”指哪条江？', o:['长江','黄河','珠江'], a:0},
+    {q:'《饮湖上初晴后雨》写的是哪个湖？', o:['西湖','洞庭湖','太湖'], a:0},
+    {q:'苏轼把西湖比作谁？', o:['西施','王昭君','貂蝉'], a:0},
+    {q:'《望洞庭》的作者是谁？', o:['刘禹锡','李白','杜甫'], a:0},
+    {q:'“碧水东流至此回”写出了天门山下水流怎样？', o:['湍急回旋','平静无波','快要干涸'], a:0},
+    {q:'“淡妆浓抹总相宜”是说西湖？', o:['晴天雨天都很美','只有浓妆才美','只有素颜才美'], a:0},
+    {q:'“潭面无风镜未磨”把洞庭湖面比作什么？', o:['没有打磨的铜镜','明亮的玻璃','白色的银盘'], a:0}
+  ]},
+  {t:'富饶的西沙群岛', qs:[
+    {q:'西沙群岛在我国的什么方向？', o:['南海','东海','黄海'], a:0},
+    {q:'西沙群岛的海水是什么样子？', o:['五光十色','漆黑一片','浑浊发黄'], a:0},
+    {q:'海底的珊瑚像什么？', o:['绽开的花朵','大树的枝叶','高高的山峰'], a:0},
+    {q:'海滩上遍地是什么？', o:['美丽的贝壳','金色的沙子','光滑的鹅卵石'], a:0},
+    {q:'海岛上的鸟粪有什么用处？', o:['是宝贵的肥料','能盖房子','可以喂鱼'], a:0},
+    {q:'海参在海底是怎样移动的？', o:['懒洋洋地蠕动','飞快地游来游去','一动不动'], a:0},
+    {q:'大龙虾划过来划过去的样子怎样？', o:['挺威武','很害怕','很懒惰'], a:0},
+    {q:'西沙群岛为什么“可爱”？', o:['风景优美、物产丰富','离大海很近','停着很多船'], a:0}
+  ]},
+  {t:'海滨小城', qs:[
+    {q:'课文写的是什么地方？', o:['海滨小城','大海边的渔村','繁华的大都市'], a:0},
+    {q:'沙滩上有什么在寂寞地躺着？', o:['贝壳','小船','海螺'], a:0},
+    {q:'小城的庭院里栽了许多什么？', o:['树','花','竹子'], a:0},
+    {q:'凤凰树开花时，小城像什么？', o:['笼罩在一片片红云中','下起了大雪','挂满了灯笼'], a:0},
+    {q:'小城的街道有什么特点？', o:['细沙铺成，非常干净','又宽又挤','又脏又乱'], a:0},
+    {q:'桉树、椰子树、橄榄树、凤凰树都栽在？', o:['庭院里','沙滩上','船上'], a:0},
+    {q:'公园里的榕树像什么？', o:['一顶顶撑开的绿绒大伞','一座座宝塔','一片片白云'], a:0},
+    {q:'“这座小城真可爱”表达了作者怎样的感情？', o:['对小城的喜爱','想搬去大城市','觉得小城无聊'], a:0}
+  ]},
+  {t:'美丽的小兴安岭', qs:[
+    {q:'小兴安岭在我国的什么位置？', o:['东北','西南','江南'], a:0},
+    {q:'小兴安岭一年四季怎么样？', o:['景色诱人','只有冬天美','夏天太热'], a:0},
+    {q:'春天，树木什么样？', o:['抽出新的枝条','落光了叶子','结满果实'], a:0},
+    {q:'秋天的森林里有哪些特产？', o:['山葡萄、榛子、蘑菇、木耳','苹果、香蕉、菠萝','棉花、大豆、高粱'], a:0},
+    {q:'冬天的雪地里有哪些动物？', o:['黑熊、紫貂、松鼠','大象、长颈鹿','老虎、狮子'], a:0},
+    {q:'夏天，小兴安岭的树木长得怎样？', o:['葱葱茏茏、密密层层','光秃秃的','又细又矮'], a:0},
+    {q:'早晨，雾把森林怎么样了？', o:['整个森林浸在乳白色的浓雾里','把雾吹散了','变成了毛毛细雨'], a:0},
+    {q:'春天，山上的积雪融化后变成什么？', o:['汇成小溪，淙淙地流','结成厚厚的冰','立刻蒸发到空中'], a:0}
+  ]},
+  {t:'大自然的声音', qs:[
+    {q:'谁在森林里演奏手风琴？', o:['风','雷','电'], a:0},
+    {q:'水是大自然的什么？', o:['音乐家','画家','舞蹈家'], a:0},
+    {q:'小雨滴敲敲打打，像什么乐器？', o:['打击乐','大鼓','古筝'], a:0},
+    {q:'谁是大自然的歌手？', o:['动物们','风儿','花儿'], a:0},
+    {q:'大自然的声音给我们的感觉是？', o:['美妙','吵闹','刺耳'], a:0},
+    {q:'狂风吹起时，森林奏出怎样的乐曲？', o:['雄伟的乐曲','轻轻的摇篮曲','悲伤的歌'], a:0},
+    {q:'小溪淙淙，流向河流、大海，声音有什么变化？', o:['从小曲唱到大合唱','越来越小','完全没有变化'], a:0},
+    {q:'我们用什么器官感受大自然的声音？', o:['耳朵','眼睛','小手'], a:0}
+  ]},
+  {t:'父亲、树林和鸟', qs:[
+    {q:'父亲一生最喜欢什么？', o:['树林和歌唱的鸟','打猎','种花'], a:0},
+    {q:'父亲说什么时候是树林和鸟最快活的时刻？', o:['黎明','中午','黄昏'], a:0},
+    {q:'鸟最快活的时刻在做什么？', o:['飞离树枝飞向天空','在窝里睡觉','在地上觅食'], a:0},
+    {q:'父亲对鸟的态度是怎样的？', o:['喜爱而且很了解','害怕','讨厌'], a:0},
+    {q:'课文最后，“我”为什么高兴？', o:['父亲不是猎人，鸟很安全','要去旅游了','捡到了鸟蛋'], a:0},
+    {q:'父亲看树林时的神情怎样？', o:['又仔细又专心','无所谓','很不耐烦'], a:0},
+    {q:'父亲为什么能知道林子里有没有鸟？', o:['他观察得很仔细，很了解鸟','鸟会开口说话','他会说鸟语'], a:0},
+    {q:'鸟最快活的时刻也最怎样？', o:['容易被猎人打中','容易感觉累','不容易被看见'], a:0}
+  ]},
+  {t:'带刺的朋友', qs:[
+    {q:'“带刺的朋友”指的是谁？', o:['刺猬','仙人掌','松鼠'], a:0},
+    {q:'刺猬什么时候来偷枣？', o:['秋天的一个晚上','夏天的中午','冬天的早晨'], a:0},
+    {q:'刺猬怎么把枣弄下来？', o:['爬上树用力摇','用嘴一颗颗咬','等枣自己掉'], a:0},
+    {q:'刺猬用什么办法带走满地的枣？', o:['打个滚儿，用刺把枣扎住','装进小袋子','抱在怀里'], a:0},
+    {q:'课文表达了作者怎样的感情？', o:['对刺猬的喜爱','对刺猬的讨厌','对刺猬的害怕'], a:0},
+    {q:'刺猬为什么要来“偷”枣？', o:['饿了，出来找食物','太调皮','帮同伴收集'], a:0},
+    {q:'刺猬驮着满身的枣之后做了什么？', o:['急忙爬下树，消失在夜色里','在树下睡着了','把枣还给大树'], a:0},
+    {q:'作者为什么偷偷地看刺猬？', o:['想认识这位带刺的朋友','想抓住它','想数清枣的个数'], a:0}
+  ]},
+  {t:'司马光', qs:[
+    {q:'《司马光》是一篇什么体裁的课文？', o:['文言文','古诗','现代诗'], a:0},
+    {q:'一个小朋友掉进了哪里？', o:['大水缸','水池','小河'], a:0},
+    {q:'其他小朋友都怎样了？', o:['都吓得跑开了','一起跳水救人','站在旁边哭'], a:0},
+    {q:'司马光用什么办法救人？', o:['用石头砸破水缸','跳进水缸里拉','伸手去拽他'], a:0},
+    {q:'司马光是个怎样的孩子？', o:['遇事冷静、肯动脑筋','调皮捣蛋','胆小怕事'], a:0},
+    {q:'“群儿戏于庭”是什么意思？', o:['一群孩子在院子里玩','一群大人在聊天','孩子们在学堂读书'], a:0},
+    {q:'“光持石击瓮破之”中的“之”指什么？', o:['水缸','石头','那个孩子'], a:0},
+    {q:'司马光救人的方法妙在哪里？', o:['不靠近水缸，从外面破缸放水','因为他力气最大','因为他跳得高'], a:0}
+  ]},
+  {t:'掌声', qs:[
+    {q:'文中的“我”是谁？', o:['小英','小丽','小红'], a:0},
+    {q:'小英为什么不愿意让人看到她走路？', o:['生病落下腿疾','鞋子不好看','害羞胆小'], a:0},
+    {q:'同学们一共给了小英几次掌声？', o:['两次','一次','三次'], a:0},
+    {q:'第一次掌声是在什么时候响起的？', o:['小英走上讲台讲故事时','下课时','放学路上'], a:0},
+    {q:'掌声让小英发生了什么变化？', o:['变得开朗，愿意和人交流','更加自卑','转学了'], a:0},
+    {q:'小英讲故事时，同学们为什么给她掌声？', o:['用掌声鼓励她','觉得很好笑','老师要求的'], a:0},
+    {q:'故事讲完后的掌声表示什么？', o:['同学们的赞扬','让小英快点下台','同学们很生气'], a:0},
+    {q:'变了以后，小英和同学们怎样相处？', o:['一起游戏说笑','还是一个人待着','再也不理同学'], a:0}
+  ]},
+  {t:'灰雀', qs:[
+    {q:'《灰雀》写的是谁的故事？', o:['列宁','高尔基','周恩来'], a:0},
+    {q:'列宁每天在公园里看什么？', o:['灰雀','松鼠','鸽子'], a:0},
+    {q:'那只深红胸脯的灰雀去哪儿了？', o:['被男孩捉回家了','飞到远方去了','被黄鼠狼吃掉了'], a:0},
+    {q:'男孩为什么捉走了灰雀？', o:['太喜欢它了','想卖钱','想烤着吃'], a:0},
+    {q:'这个故事想告诉我们什么？', o:['要诚实，知错就改','鸟不能养','列宁很凶'], a:0},
+    {q:'列宁问男孩灰雀去哪儿了，男孩怎么回答？', o:['说它一定会飞回来','说不知道','说是猫吃掉的'], a:0},
+    {q:'第二天，那只灰雀回来了吗？', o:['回来了，男孩把它放了','没有回来','变成了另一只鸟'], a:0},
+    {q:'列宁为什么没有当面批评男孩？', o:['想保护他的自尊心，让他自己认错','不敢说他','不喜欢他'], a:0}
+  ]}
+];
+
+/* ---------- 3. 数据：数学单元题库（人教版三年级上册，9个单元×5题） ---------- */
+var MATH_UNITS = [
+  {t:'时、分、秒', qs:[
+    {q:'钟面上最短最粗的针是哪一根？', o:['时针','分针','秒针'], a:0},
+    {q:'秒针走一圈是多少秒？', o:['60秒','100秒','30秒'], a:0},
+    {q:'1分等于多少秒？', o:['60秒','100秒','10秒'], a:0},
+    {q:'下午1:30上课，1:30也可以说是？', o:['13时30分','13时','1时'], a:0},
+    {q:'秒针走一小格是多少秒？', o:['1秒','5秒','10秒'], a:0},
+    {q:'1时等于多少分？', o:['60分','100分','30分'], a:0},
+    {q:'电影9:30开始，放映1时40分，什么时候结束？', o:['11:10','10:10','11:30'], a:0},
+    {q:'我们上一节课大约多长时间？', o:['40分钟','40秒','4小时'], a:0}
+  ]},
+  {t:'万以内的加法和减法（一）', qs:[
+    {q:'口算：89 + 12 = ?', o:['101','111','91'], a:0},
+    {q:'口算：57 - 23 = ?', o:['34','44','33'], a:0},
+    {q:'估算：203 + 396 的结果大约是？', o:['六百','五百','七百'], a:0},
+    {q:'笔算加法时，首先要注意什么？', o:['相同数位对齐','从最高位算起','不用进位'], a:0},
+    {q:'验算加法结果对不对，可以用什么方法？', o:['交换两个加数的位置再算一遍','再减一次','不用验算'], a:0},
+    {q:'口算：300 + 500 = ?', o:['800','500','300'], a:0},
+    {q:'最小的三位数加最小的两位数，和是多少？', o:['110','90','200'], a:0},
+    {q:'估算：598 - 304 的结果大约是？', o:['300','200','400'], a:0}
+  ]},
+  {t:'测量', qs:[
+    {q:'测量课本的厚度，用什么作单位比较合适？', o:['毫米','千米','米'], a:0},
+    {q:'1厘米等于多少毫米？', o:['10毫米','100毫米','1毫米'], a:0},
+    {q:'马拉松比赛的路程用什么作单位？', o:['千米','米','分米'], a:0},
+    {q:'1千米等于多少米？', o:['1000米','100米','10米'], a:0},
+    {q:'一头大象大约重3？', o:['吨','千克','克'], a:0},
+    {q:'一枚硬币的厚度大约是多少？', o:['1毫米','1厘米','1米'], a:0},
+    {q:'马拉松比赛全程大约多少？', o:['42千米','4200米','420厘米'], a:0},
+    {q:'小红身高1米35厘米，合多少厘米？', o:['135厘米','153厘米','35厘米'], a:0}
+  ]},
+  {t:'万以内的加法和减法（二）', qs:[
+    {q:'笔算：356 + 274 = ?', o:['630','640','620'], a:0},
+    {q:'笔算：500 - 186 = ?', o:['314','324','304'], a:0},
+    {q:'被减数 - 减数 = ？', o:['差','和','积'], a:0},
+    {q:'下面哪道算式的结果最接近500？', o:['298+205','151+359','67+241'], a:0},
+    {q:'笔算连续退位减法时，要注意什么？', o:['哪一位不够减，就从前一位退1当10','直接从高位借10','不用借位'], a:0},
+    {q:'笔算：405 + 297 = ?', o:['702','692','712'], a:0},
+    {q:'笔算：600 - 128 = ?', o:['472','482','462'], a:0},
+    {q:'验算 500 - 186 = 314，下面哪个算式是对的？', o:['186 + 314 = 500','314 - 186 = 128','500 - 314 = 128'], a:0}
+  ]},
+  {t:'倍的认识', qs:[
+    {q:'求“一个数是另一个数的几倍”，用什么方法算？', o:['除法','加法','乘法'], a:0},
+    {q:'求“一个数的几倍是多少”，用什么方法算？', o:['乘法','除法','加法'], a:0},
+    {q:'红花有8朵，黄花的朵数是红花的3倍，黄花有多少朵？', o:['24朵','11朵','5朵'], a:0},
+    {q:'“倍”解决的是什么问题？', o:['两个数量之间的关系','物体的颜色','图形的形状'], a:0},
+    {q:'有12个苹果，每4个装一盘，可以装几盘？', o:['3盘','8盘','16盘'], a:0},
+    {q:'有15个苹果，苹果的个数是梨的3倍，梨有几个？', o:['5个','45个','12个'], a:0},
+    {q:'红花5朵，黄花是红花的4倍，红花和黄花一共多少朵？', o:['25朵','20朵','9朵'], a:0},
+    {q:'“24是8的几倍？”列式是？', o:['24÷8','24×8','8÷24'], a:0}
+  ]},
+  {t:'多位数乘一位数', qs:[
+    {q:'口算：20 × 3 = ?', o:['60','6','600'], a:0},
+    {q:'口算：400 × 5 = ?', o:['2000','200','20000'], a:0},
+    {q:'笔算：123 × 3 = ?', o:['369','359','386'], a:0},
+    {q:'多位数乘一位数，要从哪一位乘起？', o:['个位','十位','百位'], a:0},
+    {q:'0和任何数相乘等于？', o:['0','1','原来的那个数'], a:0},
+    {q:'口算：3 × 500 = ?', o:['1500','500','3500'], a:0},
+    {q:'笔算：236 × 4 = ?', o:['944','934','844'], a:0},
+    {q:'一盒彩笔8元，买5盒一共多少元？', o:['40元','13元','35元'], a:0}
+  ]},
+  {t:'长方形和正方形', qs:[
+    {q:'长方形里面有几个直角？', o:['4个','2个','0个'], a:0},
+    {q:'正方形的几条边都怎样？', o:['4条边都相等','只有2条相等','都不相等'], a:0},
+    {q:'长方形相对的两条边怎样？', o:['相等','不相等','一条长一条短'], a:0},
+    {q:'封闭图形一周的长度叫什么？', o:['周长','面积','边长'], a:0},
+    {q:'边长4厘米的正方形，周长是多少？', o:['16厘米','8厘米','12厘米'], a:0},
+    {q:'用一根20厘米的绳子围成一个正方形，边长是多少？', o:['5厘米','4厘米','10厘米'], a:0},
+    {q:'长5厘米、宽3厘米的长方形，周长是多少？', o:['16厘米','8厘米','15厘米'], a:0},
+    {q:'至少用几根同样长的小棒可以摆一个正方形？', o:['4根','3根','6根'], a:0}
+  ]},
+  {t:'分数的初步认识', qs:[
+    {q:'把一个苹果平均分成2份，每份是这个苹果的？', o:['二分之一','三分之一','四分之一'], a:0},
+    {q:'1/2 读作什么？', o:['二分之一','一分之二','二分之'], a:0},
+    {q:'3/4 是几个 1/4？', o:['3个','4个','2个'], a:0},
+    {q:'1/2 和 1/4 比，哪个大？', o:['1/2','1/4','一样大'], a:0},
+    {q:'一块巧克力吃了它的1/2，还剩多少？', o:['1/2','1/4','吃光了'], a:0},
+    {q:'把一个月饼平均分成4块，每块是这个月饼的？', o:['1/4','4','1'], a:0},
+    {q:'1/5 + 2/5 = ?', o:['3/5','3/10','2/5'], a:0},
+    {q:'同样长的绳子，分成3段和分成6段，每段一样长吗？', o:['不一样，分成3段的长','一样长','分成6段的长'], a:0}
+  ]},
+  {t:'数学广角——集合', qs:[
+    {q:'参加语文小组8人、数学小组9人，两项都参加的有3人，一共有多少人？', o:['14人','17人','11人'], a:0},
+    {q:'解决“重复计算”的问题，常用什么方法？', o:['画集合图（韦恩图）','背口诀','估算'], a:0},
+    {q:'数图形个数时，要做到什么？', o:['按顺序数，不重复不遗漏','随便数','数得最快就行'], a:0},
+    {q:'韦恩图中间重叠的部分表示什么？', o:['两项都参加的','两项都不参加的','只参加一项的'], a:0},
+    {q:'生活中排队、参加兴趣班这类“重复”问题，要注意？', o:['把重复数的部分去掉','多数几次','不用管'], a:0},
+    {q:'参加跳绳9人、踢毽子8人，两项都参加4人，一共有多少人？', o:['13人','21人','17人'], a:0},
+    {q:'排队时，小明前面有4人、后面有3人，这队一共有多少人？', o:['8人','7人','9人'], a:0},
+    {q:'用集合图解决问题时，重叠部分要算几次？', o:['只算一次','算两次','不算'], a:0}
+  ]}
+];
+
+/* ---------- 4. 数据：英语单元题库（人教版PEP三年级上册，6个单元×5题） ---------- */
+var EN_UNITS = [
+  {t:'Hello!', qs:[
+    {q:'“铅笔”的英语是？', o:['pencil','pen','ruler'], a:0},
+    {q:'“尺子”的英语是？', o:['ruler','eraser','bag'], a:0},
+    {q:'早上见到老师，应该说什么？', o:['Good morning!','Good night!','Bye!'], a:0},
+    {q:'“橡皮”的英语是？', o:['eraser','crayon','book'], a:0},
+    {q:'别人问你的名字，你叫Amy，应该回答？', o:["I'm Amy.","You are Amy.","My name Amy."], a:0},
+    {q:'“再见”的英语是？', o:['Bye!','Hello!','Sorry!'], a:0},
+    {q:'“书包”的英语是？', o:['bag','book','pen'], a:0},
+    {q:'早上向同学打招呼，还可以说什么？', o:['Hi!','Good night!','Bye!'], a:0}
+  ]},
+  {t:'Colours', qs:[
+    {q:'“红色”的英语是？', o:['red','blue','green'], a:0},
+    {q:'“黑色”的英语是？', o:['black','white','brown'], a:0},
+    {q:'“橙色”的英语是？', o:['orange','pink','purple'], a:0},
+    {q:'看到棕色的小熊，可以说：It is ___.', o:['brown','yellow','blue'], a:0},
+    {q:'“白色”的英语是？', o:['white','green','red'], a:0},
+    {q:'“蓝色”的英语是？', o:['blue','black','brown'], a:0},
+    {q:'“黄色”的英语是？', o:['yellow','green','red'], a:0},
+    {q:'“绿色”的英语是？', o:['green','great','grey'], a:0}
+  ]},
+  {t:'Look at me!', qs:[
+    {q:'“眼睛”的英语是？', o:['eye','ear','nose'], a:0},
+    {q:'“鼻子”的英语是？', o:['nose','mouth','face'], a:0},
+    {q:'“头”的英语是？', o:['head','hand','arm'], a:0},
+    {q:'老师说：Touch your ___. 让你摸摸自己的脸。', o:['face','foot','leg'], a:0},
+    {q:'“手”的英语是？', o:['hand','finger','foot'], a:0},
+    {q:'“耳朵”的英语是？', o:['ear','eye','nose'], a:0},
+    {q:'“嘴巴”的英语是？', o:['mouth','face','arm'], a:0},
+    {q:'“腿”的英语是？', o:['leg','arm','foot'], a:0}
+  ]},
+  {t:'We love animals', qs:[
+    {q:'“小猫”的英语是？', o:['cat','pig','duck'], a:0},
+    {q:'“小狗”的英语是？', o:['dog','duck','bear'], a:0},
+    {q:'“大象”的英语是？', o:['elephant','monkey','tiger'], a:0},
+    {q:'“小兔子”的英语是？', o:['rabbit','duck','panda'], a:0},
+    {q:'老师说：Act like a ___. 让你模仿一只猴子。', o:['monkey','bird','elephant'], a:0},
+    {q:'“小猪”的英语是？', o:['pig','big','dog'], a:0},
+    {q:'“鸭子”的英语是？', o:['duck','duckling','dark'], a:0},
+    {q:'“熊猫”的英语是？', o:['panda','pencil','park'], a:0}
+  ]},
+  {t:"Let's eat!", qs:[
+    {q:'“面包”的英语是？', o:['bread','milk','rice'], a:0},
+    {q:'“果汁”的英语是？', o:['juice','water','milk'], a:0},
+    {q:'“鸡蛋”的英语是？', o:['egg','cake','fish'], a:0},
+    {q:'“我喜欢吃蛋糕”用英语说是？', o:['I like cake.','I like cat.','I am cake.'], a:0},
+    {q:'“牛奶”的英语是？', o:['milk','water','tea'], a:0},
+    {q:'“米饭”的英语是？', o:['rice','race','rise'], a:0},
+    {q:'“水”的英语是？', o:['water','what','want'], a:0},
+    {q:'“蛋糕”的英语是？', o:['cake','cat','cap'], a:0}
+  ]},
+  {t:'Happy birthday!', qs:[
+    {q:'数字“六”的英语是？', o:['six','seven','eight'], a:0},
+    {q:'数字“九”的英语是？', o:['nine','ten','eight'], a:0},
+    {q:'过生日时，我们常对寿星说什么？', o:['Happy birthday!','Happy New Year!','Thank you!'], a:0},
+    {q:'“气球”的英语是？', o:['balloon','kite','car'], a:0},
+    {q:'“gift”是什么意思？', o:['礼物','蛋糕','玩具'], a:0},
+    {q:'数字“十”的英语是？', o:['ten','teen','tin'], a:0},
+    {q:'“风筝”的英语是？', o:['kite','kit','kitty'], a:0},
+    {q:'“小汽车”的英语是？', o:['car','cat','cart'], a:0}
+  ]}
+];
+
+/* ---------- 5. 数据：6首必背古诗（人教版三年级上册） ---------- */
+var POEMS = [
+  {title:'山行', author:'杜牧',
+   lines:['远上寒山石径斜','白云生处有人家','停车坐爱枫林晚','霜叶红于二月花'],
+   qs:[
+     {q:'“停车坐爱枫林晚”中“坐”是什么意思？', o:['因为','坐下'], a:0},
+     {q:'《山行》的作者是谁？', o:['杜牧','李白','杜甫'], a:0}
+   ]},
+  {title:'赠刘景文', author:'苏轼',
+   lines:['荷尽已无擎雨盖','菊残犹有傲霜枝','一年好景君须记','最是橙黄橘绿时'],
+   qs:[
+     {q:'《赠刘景文》的作者是谁？', o:['苏轼','李白','杜甫'], a:0},
+     {q:'“一年好景君须记，最是橙黄橘绿时”写的是什么时节？', o:['深秋','初春','盛夏'], a:0}
+   ]},
+  {title:'夜书所见', author:'叶绍翁',
+   lines:['萧萧梧叶送寒声','江上秋风动客情','知有儿童挑促织','夜深篱落一灯明'],
+   qs:[
+     {q:'《夜书所见》的作者是谁？', o:['叶绍翁','李白','杜甫'], a:0},
+     {q:'“知有儿童挑促织”中的“促织”指什么？', o:['蟋蟀','知了','蜻蜓'], a:0}
+   ]},
+  {title:'望天门山', author:'李白',
+   lines:['天门中断楚江开','碧水东流至此回','两岸青山相对出','孤帆一片日边来'],
+   qs:[
+     {q:'《望天门山》的作者是谁？', o:['李白','杜甫','白居易'], a:0},
+     {q:'“天门中断楚江开”中的“楚江”指哪条江？', o:['长江','黄河','珠江'], a:0}
+   ]},
+  {title:'饮湖上初晴后雨', author:'苏轼',
+   lines:['水光潋滟晴方好','山色空蒙雨亦奇','欲把西湖比西子','淡妆浓抹总相宜'],
+   qs:[
+     {q:'这首诗写的是哪个湖？', o:['西湖','洞庭湖','太湖'], a:0},
+     {q:'诗人把西湖比作谁？', o:['西施','王昭君','貂蝉'], a:0}
+   ]},
+  {title:'望洞庭', author:'刘禹锡',
+   lines:['湖光秋月两相和','潭面无风镜未磨','遥望洞庭山水翠','白银盘里一青螺'],
+   qs:[
+     {q:'《望洞庭》的作者是谁？', o:['刘禹锡','李白','杜甫'], a:0},
+     {q:'“白银盘里一青螺”中的“青螺”比喻什么？', o:['君山','小船','月亮'], a:0}
+   ]}
+];
+
+/* ---------- 6. 数据：商店植物（阳光积分兑换） ---------- */
+var PLANTS = [
+  {name:'向日葵',   emoji:'🌻', price:50},
+  {name:'豌豆射手', emoji:'🌱', price:80},
+  {name:'坚果墙',   emoji:'🌰', price:100},
+  {name:'樱桃炸弹', emoji:'🍒', price:120},
+  {name:'辣椒',     emoji:'🌶️', price:60}
+];
+
+/* ---------- 7. 侧边导航配置 ---------- */
+var NAV = [
+  {page:'chinese', label:'语文',   ico:'📖'},
+  {page:'math',    label:'数学',   ico:'3'},
+  {page:'english', label:'英语',   ico:'abc'},
+  {page:'sport',   label:'运动',   ico:'🏃'},
+  {page:'match',   label:'对对碰', ico:'🎯'},
+  {page:'duck',    label:'抓大鹅', ico:'🦆'},
+  {page:'garden',  label:'花园',   ico:'🏡'},
+  {page:'shop',    label:'商店',   ico:'🛒'}
+];
+
+/* ---------- 8. 本地状态（localStorage 持久化，清缓存才重置） ---------- */
+var STORAGE_KEY = 'acheng-workbench-v1';
+function defaultState(){
+  return {
+    points: 0,        // 阳光积分总数
+    plants: {},       // 花园植物：{名称: 数量}
+    mathDone: [],     // 已完成的数学单元下标
+    enDone: [],       // 已完成的英语单元下标
+    answers: {},      // 每题作答记录：'L课文序号-题号' / 'P古诗序号-题号' => 选中的选项下标
+    lessonsDone: [],  // 已完成的课文课次下标
+    poemsDone: [],    // 已完成单选闯关的古诗下标
+    recited: [],      // 已提交背诵的古诗下标
+    /* ---- 小游戏与打卡 ---- */
+    matchDone: {},    // 对对碰首次通关记录：{难度: true}
+    matchBest: {},    // 对对碰最佳纪录：{难度: {steps, time}}
+    duckBest: 0,      // 抓大鹅最高分
+    sportToday: {},   // 运动打卡：{'YYYY-MM-DD': {项目下标: true}}
+    sportHistory: {}, // 运动打卡历史：{'YYYY-MM-DD': 当天完成项数}
+    sportStreak: 0,   // 连续打卡天数
+    sportLastDay: '', // 最后一次打卡日期
+    soundOn: true,    // 小游戏音效开关
+    gameRewards: {},  // 小游戏每日奖励次数：{'YYYY-MM-DD': 当天已领次数}（对对碰+抓大鹅合计）
+    sportPointDay: '' // 运动积分已领取的日期（每天限领1次，防取消再打卡刷分）
+  };
+}
+function loadState(){
+  try{
+    var raw = localStorage.getItem(STORAGE_KEY);
+    var s = raw ? JSON.parse(raw) : {};
+    var d = defaultState();
+    for(var k in d){ if(s[k] === undefined) s[k] = d[k]; }
+    return s;
+  }catch(e){ return defaultState(); }
+}
+function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
+var state = loadState();
+
+/* 当前页面视图（内存态，刷新后自动回到未完成的课文/单元/古诗） */
+var view = { page:'chinese', lesson:0, lessonQ:0, poem:0, poemQ:0, math:0, mathQ:0, en:0, enQ:0 };
+
+/* ---------- 9. 通用小工具 ---------- */
+function $(id){ return document.getElementById(id); }
+var toastTimer = null;
+function toast(msg){
+  var t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2300);
+}
+function fmtTime(s){
+  var m = Math.floor(s/60), ss = s%60;
+  return (m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;
+}
+function openMask(id){ $(id).classList.add('show'); }
+function closeMask(id){
+  $(id).classList.remove('show');
+  if(id === 'mask-record') recCleanup();   // 关闭录音弹窗时释放麦克风
+}
+
+/* ---------- 10. 积分 ---------- */
+/* silent=true 时不弹提示（用于对对碰每对+1分这种频繁加分，避免弹窗刷屏） */
+function addPoints(n, reason, silent){
+  if(n <= 0) return;
+  if(HARD_CAP && state.points + n > POINT_GOAL){
+    toast('今天的目标 '+POINT_GOAL+'☀️ 已达到，先去商店逛逛吧～');
+    return;
+  }
+  state.points += n;
+  save();
+  renderHeader();
+  if(!silent) toast('☀️ +'+n+' 分'+(reason ? '　'+reason : ''));
+}
+function renderHeader(){
+  $('sunNum').textContent = state.points;
+  var pct = Math.min(state.points / POINT_GOAL, 1) * 100;
+  $('sunBar').style.width = pct + '%';
+  $('sunText').textContent = Math.min(state.points, POINT_GOAL) + '/' + POINT_GOAL;
+}
+
+/* ---------- 11. 侧边导航 ---------- */
+function buildSidebar(){
+  var html = '<div class="logo">🌻</div>';
+  for(var i=0;i<NAV.length;i++){
+    var n = NAV[i];
+    var ico;
+    if(n.ico === 'abc') ico = '<span class="ico abc">abc</span>';
+    else if(/^\d+$/.test(n.ico)) ico = '<span class="ico num">'+n.ico+'</span>';
+    else ico = '<span class="ico">'+n.ico+'</span>';
+    html += '<button class="nav-item" data-act="nav" data-page="'+n.page+'">'
+          + ico + '<span>'+n.label+'</span></button>';
+  }
+  $('sidebar').innerHTML = html;
+}
+function switchPage(id){
+  /* 离开抓大鹅页面时结束本局（避免后台继续倒计时） */
+  if(view.page === 'duck' && id !== 'duck') stopDuckGame();
+  view.page = id;
+  var items = document.querySelectorAll('.nav-item');
+  for(var i=0;i<items.length;i++) items[i].classList.toggle('active', items[i].dataset.page === id);
+  var pages = document.querySelectorAll('.page');
+  for(var j=0;j<pages.length;j++) pages[j].classList.toggle('active', pages[j].id === 'page-'+id);
+  renderCurrent();
+  $('content').scrollTop = 0;
+}
+function renderCurrent(){
+  if(view.page === 'chinese') renderChinese();
+  else if(view.page === 'math') renderMath();
+  else if(view.page === 'english') renderEnglish();
+  else if(view.page === 'sport') renderSport();
+  else if(view.page === 'match') renderMatch();
+  else if(view.page === 'duck') renderDuck();
+  else if(view.page === 'shop') renderShop();
+  else if(view.page === 'garden') renderGarden();
+}
+
+/* ---------- 12. 各科学习页渲染（语文 / 数学 / 英语 / 古诗 共用一套答题卡片） ---------- */
+function lessonTitle(i){ return '第'+ (i+1) +'课 · 《'+ LESSONS[i].t +'》'; }
+function poemTitle(i){ return '第'+ (i+1) +'首 · 《'+ POEMS[i].title +'》'; }
+function mathTitle(i){ return '第'+ (i+1) +'单元 · '+ MATH_UNITS[i].t; }
+function enTitle(i){ return '第'+ (i+1) +'单元 · '+ EN_UNITS[i].t; }
+
+/* 四种闯关类型配置：L=语文课文  M=数学单元  E=英语单元  P=古诗 */
+var QUIZ_KINDS = {
+  L:{list:LESSONS,    doneKey:'lessonsDone', name:'课文', nextLabels:['下一题 ▶','下一课 ▶'],   icon:'📝'},
+  M:{list:MATH_UNITS, doneKey:'mathDone',    name:'单元', nextLabels:['下一题 ▶','下一单元 ▶'], icon:'🧮'},
+  E:{list:EN_UNITS,   doneKey:'enDone',      name:'单元', nextLabels:['下一题 ▶','下一单元 ▶'], icon:'🔤'},
+  P:{list:POEMS,      doneKey:'poemsDone',   name:'古诗', nextLabels:['下一题 ▶','下一首 ▶'],   icon:'📜'}
+};
+/* 视图字段映射：不同类型的“当前第几个 / 第几题”分别存在 view 的不同字段里 */
+function viewIdx(k){ return k==='L'?view.lesson : k==='M'?view.math : k==='E'?view.en : view.poem; }
+function viewQ(k){   return k==='L'?view.lessonQ : k==='M'?view.mathQ : k==='E'?view.enQ : view.poemQ; }
+function setViewIdx(k,v){ if(k==='L')view.lesson=v; else if(k==='M')view.math=v; else if(k==='E')view.en=v; else view.poem=v; }
+function setViewQ(k,v){   if(k==='L')view.lessonQ=v; else if(k==='M')view.mathQ=v; else if(k==='E')view.enQ=v; else view.poemQ=v; }
+
+/* 通用答题卡片：课文 / 数学单元 / 英语单元 / 古诗 都是同一套外观，
+   以后想改题目卡片样式，只改这一个函数即可。 */
+function quizCardHTML(cfg){
+  var k = cfg.kind, conf = QUIZ_KINDS[k];
+  var idx = cfg.idx, quiz = conf.list[idx];
+  var q = quiz.qs[cfg.qIdx];
+  var key = k + idx + '-' + cfg.qIdx;
+  var answered = state.answers[key] !== undefined;
+  var chosen = state.answers[key];
+  var done = state[conf.doneKey].indexOf(idx) > -1;
+
+  var html = '<h2>'+conf.icon+' '+cfg.name+'</h2>'
+    + '<div class="subtitle">'+cfg.sub+'</div>'
+    + '<button class="pill" data-act="open-pick" data-mode="'+cfg.mode+'">'+cfg.unitLabel+' <span class="caret">▾</span></button>'
+    + '<div class="q-card">'+conf.icon+' 第'+(cfg.qIdx+1)+'/'+quiz.qs.length+'题：'+q.q+'</div>';
+  /* 选项：答对变绿✅、答错变红❌并高亮正确答案，答过就锁死不能重复得分 */
+  for(var i=0;i<q.o.length;i++){
+    var cls = 'opt', mark = '';
+    if(answered){
+      if(i === q.a){ cls += ' correct'; mark = ' ✅'; }
+      else if(i === chosen){ cls += ' wrong'; mark = ' ❌'; }
+    }
+    html += '<button class="'+cls+'" data-act="answer" data-kind="'+k+'" data-q="'+cfg.qIdx+'" data-o="'+i+'"'+(answered?' disabled':'')+'>'+q.o[i]+mark+'</button>';
+  }
+  /* 答题反馈文字 */
+  html += '<div class="feedback '+(answered ? (chosen===q.a ? 'ok' : 'no') : '')+'">'
+        + (answered ? (chosen===q.a ? '答对啦，真棒！☀️ +1' : '答错啦～正确答案是「'+q.o[q.a]+'」') : '')
+        + '</div>';
+  /* 本课/本单元进度小提示（showHint=false 的古诗卡片不显示） */
+  if(cfg.showHint){
+    var doneCnt = 0, rightCnt = 0;
+    for(var d=0;d<quiz.qs.length;d++){
+      var kk = k+idx+'-'+d;
+      if(state.answers[kk] !== undefined){ doneCnt++; if(state.answers[kk] === quiz.qs[d].a) rightCnt++; }
+    }
+    html += '<div class="progress-hint">本'+conf.name+'已完成 '+doneCnt+'/'+quiz.qs.length+' 题 · 答对 '+rightCnt+' 题</div>';
+  }
+  /* 下一题 / 下一课 / 下一单元 + 已完成标识 */
+  var nextLabel = conf.nextLabels[cfg.qIdx === quiz.qs.length-1 ? 1 : 0];
+  html += '<div class="btn-row">'
+        +   '<button class="btn-primary" data-act="next" data-kind="'+k+'">'+nextLabel+'</button>'
+        +   '<span class="badge-done'+(done?' on':'')+'">✅ 已完成</span>'
+        + '</div>';
+  if(cfg.extra) html += cfg.extra;   // 古诗卡片额外挂一个“录音背诵”按钮
+  return html;
+}
+
+/* 语文页：课文预习闯关 + 古诗词背诵 */
+function renderChinese(){
+  var recited = state.recited.indexOf(view.poem) > -1;
+  var lessonCard = quizCardHTML({
+    kind:'L', mode:'lesson', idx:view.lesson, qIdx:view.lessonQ,
+    name:'课文预习闯关（逐课模式）',
+    sub:'人教版三年级上册 · 26课逐课闯关 · 每课8题 · 全对额外奖励☀️',
+    unitLabel: lessonTitle(view.lesson), showHint:true
+  });
+  var poemCard = quizCardHTML({
+    kind:'P', mode:'poem', idx:view.poem, qIdx:view.poemQ,
+    name:'古诗词背诵',
+    sub:'人教版三年级上册 · 必背古诗6首',
+    unitLabel: poemTitle(view.poem), showHint:false,
+    extra:'<button class="btn-record" data-act="open-record">🎤 录音背诵'+(recited?'（已背过 ✅）':'')+'</button>'
+  });
+  $('page-chinese').innerHTML = '<div class="page-title">📖 语文学习</div>'
+    + '<div class="card">'+lessonCard+'</div>'
+    + '<div class="card">'+poemCard+'</div>';
+}
+
+/* 数学页：9个单元同步闯关 */
+function renderMath(){
+  $('page-math').innerHTML = '<div class="page-title">🧮 数学学习</div><div class="card">'
+    + quizCardHTML({
+        kind:'M', mode:'math', idx:view.math, qIdx:view.mathQ,
+        name:'数学同步闯关',
+        sub:'人教版三年级上册 · 9个单元 · 每单元8题 · 全对额外奖励☀️',
+        unitLabel: mathTitle(view.math), showHint:true
+      })
+    + '</div>';
+}
+
+/* 英语页：6个单元同步闯关 */
+function renderEnglish(){
+  $('page-english').innerHTML = '<div class="page-title">🔤 英语学习</div><div class="card">'
+    + quizCardHTML({
+        kind:'E', mode:'en', idx:view.en, qIdx:view.enQ,
+        name:'英语同步闯关',
+        sub:'人教版PEP三年级上册 · 6个单元 · 每单元8题 · 全对额外奖励☀️',
+        unitLabel: enTitle(view.en), showHint:true
+      })
+    + '</div>';
+}
+
+/* ---------- 13. 答题与完成判定（语文/数学/英语/古诗通用） ---------- */
+function handleAnswer(kind, qIdx, optIdx){
+  var idx = viewIdx(kind);
+  var key = kind + idx + '-' + qIdx;
+  if(state.answers[key] !== undefined) return;      // 每题只能答一次
+  var conf = QUIZ_KINDS[kind];
+  var quiz = conf.list[idx];
+  state.answers[key] = optIdx;
+  save();
+  var correct = (quiz.qs[qIdx].a === optIdx);
+  if(correct) addPoints(1, '答对啦');
+  checkDone(kind);        /* 可能标记完成并发放额外奖励 */
+  renderCurrent();        /* 统一放在最后：保证“已完成”标识立即点亮 */
+  if(!correct) toast('再想想～正确答案是「'+ quiz.qs[qIdx].o[quiz.qs[qIdx].a] +'」');
+}
+/* 全部题目答完 → 标记完成；全部答对 → 额外奖励 */
+function checkDone(kind){
+  var idx = viewIdx(kind);
+  var conf = QUIZ_KINDS[kind];
+  var quiz = conf.list[idx];
+  var allAnswered = true, allCorrect = true;
+  for(var i=0;i<quiz.qs.length;i++){
+    var v = state.answers[kind+idx+'-'+i];
+    if(v === undefined){ allAnswered = false; break; }
+    if(v !== quiz.qs[i].a) allCorrect = false;
+  }
+  if(!allAnswered) return;
+  if(state[conf.doneKey].indexOf(idx) > -1) return;
+  state[conf.doneKey].push(idx);
+  save();
+  buildPickList();
+  var label = (kind==='L') ? lessonTitle(idx) : (kind==='P') ? '《'+quiz.title+'》' : quiz.t;
+  toast('🎉 '+label+' 全部完成！');
+  if(allCorrect) addPoints(LESSON_BONUS, '全部答对额外奖励');
+}
+/* 下一题 / 下一课 / 下一单元：答完自动跳到当前单元第一道未答的题 */
+function firstUnanswered(kind, idx, total){
+  for(var i=0;i<total;i++){
+    if(state.answers[kind+idx+'-'+i] === undefined) return i;
+  }
+  return 0;
+}
+function nextQ(kind){
+  var conf = QUIZ_KINDS[kind];
+  var idx = viewIdx(kind);
+  var total = conf.list[idx].qs.length;
+  if(viewQ(kind) < total-1){
+    /* 本单元内：直接下一题（暂时跳过也没关系，
+       以后从选择器重新进入本单元时，会自动定位到第一道未答的题） */
+    setViewQ(kind, viewQ(kind)+1);
+  }else{
+    /* 本题是本题型的最后一题：进入下一课/下一单元，全部学完则循环回第1个 */
+    if(idx < conf.list.length-1){
+      setViewIdx(kind, idx+1);
+      toast('进入下一'+conf.name+'：'+conf.list[idx+1].t);
+    }else{
+      setViewIdx(kind, 0);
+      toast('太棒了！全部学完，回到第1'+conf.name+'～');
+    }
+    setViewQ(kind, 0);
+    /* 进入新单元：自动定位到第一道未答的题，接着学 */
+    var ni = viewIdx(kind);
+    setViewQ(kind, firstUnanswered(kind, ni, conf.list[ni].qs.length));
+  }
+  renderCurrent();
+}
+
+/* ---------- 14. 课文 / 单元 / 古诗 通用选择列表 ---------- */
+var pickMode = 'lesson';   // 当前打开的是哪一类选择器（lesson/math/en/poem）
+var PICK_CONF = {
+  lesson:{title:'📚 选择课文', list:LESSONS,    doneKey:'lessonsDone', label:lessonTitle, kind:'L'},
+  math:  {title:'🧮 选择单元', list:MATH_UNITS, doneKey:'mathDone',   label:mathTitle,   kind:'M'},
+  en:    {title:'🔤 选择单元', list:EN_UNITS,   doneKey:'enDone',     label:enTitle,     kind:'E'},
+  poem:  {title:'📜 选择古诗', list:POEMS,      doneKey:'poemsDone',  label:poemTitle,   kind:'P'}
+};
+function buildPickList(){
+  var conf = PICK_CONF[pickMode];
+  var curIdx = (pickMode==='lesson')?view.lesson : (pickMode==='math')?view.math : (pickMode==='en')?view.en : view.poem;
+  var html = '';
+  for(var i=0;i<conf.list.length;i++){
+    var done = state[conf.doneKey].indexOf(i) > -1;
+    var cnt = 0;
+    for(var j=0;j<conf.list[i].qs.length;j++) if(state.answers[conf.kind+i+'-'+j] !== undefined) cnt++;
+    var st = done ? '✅ 已完成' : (cnt>0 ? '进行中 '+cnt+'/'+conf.list[i].qs.length : '未开始');
+    if(pickMode==='poem' && state.recited.indexOf(i) > -1) st = '✅ 已背诵';
+    html += '<button class="pick-item'+(i===curIdx?' active':'')+'" data-act="pick-item" data-idx="'+i+'">'
+          + conf.label(i) + '<span class="st">'+st+'</span></button>';
+  }
+  $('pickTitle').innerHTML = conf.title;
+  $('pickList').innerHTML = html;
+}
+function openPick(mode){
+  pickMode = mode;
+  buildPickList();
+  openMask('mask-pick');
+}
+function pickItem(idx){
+  if(pickMode==='lesson'){ view.lesson=idx; view.lessonQ=firstUnanswered('L',idx,LESSONS[idx].qs.length); }
+  else if(pickMode==='math'){ view.math=idx; view.mathQ=firstUnanswered('M',idx,MATH_UNITS[idx].qs.length); }
+  else if(pickMode==='en'){ view.en=idx; view.enQ=firstUnanswered('E',idx,EN_UNITS[idx].qs.length); }
+  else { view.poem=idx; view.poemQ=firstUnanswered('P',idx,POEMS[idx].qs.length); }
+  closeMask('mask-pick');
+  buildPickList();
+  renderCurrent();
+}
+
+/* ---------- 15. 古诗背诵录音弹窗（调用浏览器麦克风） ---------- */
+var rec = { stream:null, mr:null, chunks:[], sec:0, timer:null, hasRec:false };
+function openRecord(){
+  var P = POEMS[view.poem];
+  $('recTitle').textContent = P.title + ' · ' + P.author;
+  $('recLines').innerHTML = P.lines.join('<br>');
+  rec.hasRec = false; rec.chunks = []; rec.sec = 0;
+  updateRecUI();
+  openMask('mask-record');
+}
+function toggleRec(){
+  if(rec.mr && rec.mr.state === 'recording'){ stopRec(); return; }
+  /* 请求麦克风（iOS 微信需在用户点击事件中调用，这里正好是点击麦克风按钮） */
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    toast('当前环境不支持录音，请在微信里打开本页面～');
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+    rec.stream = stream;
+    try{
+      rec.mr = new MediaRecorder(stream);
+    }catch(e){
+      toast('当前微信版本不支持网页录音，请升级微信试试～');
+      recCleanup();
+      return;
+    }
+    rec.chunks = []; rec.hasRec = false;
+    rec.mr.ondataavailable = function(e){ if(e.data && e.data.size) rec.chunks.push(e.data); };
+    rec.mr.onstop = function(){ rec.hasRec = rec.chunks.length > 0; updateRecUI(); };
+    rec.mr.start();
+    rec.sec = 0;
+    rec.timer = setInterval(function(){ rec.sec++; updateRecUI(); }, 1000);
+    updateRecUI();
+  }).catch(function(){
+    toast('无法使用麦克风～请在微信「设置」里允许使用麦克风');
+  });
+}
+function stopRec(){
+  if(rec.mr && rec.mr.state !== 'inactive'){ try{ rec.mr.stop(); }catch(e){} }
+  if(rec.timer){ clearInterval(rec.timer); rec.timer = null; }
+  updateRecUI();
+}
+/* 关闭弹窗时彻底释放麦克风 */
+function recCleanup(){
+  if(rec.mr && rec.mr.state !== 'inactive'){ try{ rec.mr.stop(); }catch(e){} }
+  if(rec.stream){ rec.stream.getTracks().forEach(function(t){ t.stop(); }); rec.stream = null; }
+  if(rec.timer){ clearInterval(rec.timer); rec.timer = null; }
+  rec.mr = null; rec.chunks = []; rec.hasRec = false;
+}
+function updateRecUI(){
+  var mic = $('micBtn'), tip = $('micTip'), sub = $('recSubmit');
+  if(rec.mr && rec.mr.state === 'recording'){
+    mic.classList.add('recording');
+    mic.textContent = '⏹';
+    tip.textContent = '🔴 正在录音 '+fmtTime(rec.sec)+' · 再点一次停止';
+    sub.disabled = true;
+  }else if(rec.hasRec){
+    mic.classList.remove('recording');
+    mic.textContent = '🎤';
+    tip.textContent = '✅ 录音完成（'+fmtTime(rec.sec)+'），可以提交背诵啦';
+    sub.disabled = false;
+  }else{
+    mic.classList.remove('recording');
+    mic.textContent = '🎤';
+    tip.textContent = '点击开始录音';
+    sub.disabled = true;
+  }
+}
+function submitRecitation(){
+  if(!rec.hasRec){
+    toast('请先点击麦克风完成录音，再提交背诵哦～');
+    return;
+  }
+  var idx = view.poem;
+  if(state.recited.indexOf(idx) === -1){
+    state.recited.push(idx);
+    save();
+    buildPickList();
+    addPoints(1, '背诵奖励');
+  }else{
+    toast('这次也背得很棒！');
+  }
+  closeMask('mask-record');
+}
+
+/* ---------- 16. 阳光商店 ---------- */
+function renderShop(){
+  var html = '<div class="page-title">🛒 阳光商店</div>'
+           + '<div class="card"><h2>🌱 购买植物</h2>'
+           + '<div class="subtitle">答对题目赚阳光 ☀️，点击植物卡片即可兑换～</div>';
+  for(var i=0;i<PLANTS.length;i++){
+    var p = PLANTS[i];
+    var owned = state.plants[p.name] || 0;
+    html += '<div class="plant" data-act="buy" data-plant="'+p.name+'">'
+          +   (owned ? '<span class="owned">已有 ×'+owned+'</span>' : '')
+          +   '<div class="emo">'+p.emoji+'</div>'
+          +   '<div class="name">'+p.name+'</div>'
+          +   '<div class="price">☀️ '+p.price+'</div>'
+          + '</div>';
+  }
+  html += '</div>';
+  $('page-shop').innerHTML = html;
+}
+function buyPlant(name){
+  var p = null;
+  for(var i=0;i<PLANTS.length;i++) if(PLANTS[i].name === name) p = PLANTS[i];
+  if(!p) return;
+  if(state.points < p.price){
+    toast('阳光不够啦（需要 '+p.price+'☀️）～快去语文学习赚积分吧！');
+    return;
+  }
+  state.points -= p.price;
+  state.plants[p.name] = (state.plants[p.name] || 0) + 1;
+  save();
+  renderHeader();
+  renderShop();
+  toast('🎉 兑换成功！'+p.name+' 已放进花园（-'+p.price+'☀️）');
+}
+
+/* ---------- 17. 花园 ---------- */
+function renderGarden(){
+  var names = Object.keys(state.plants).filter(function(n){ return state.plants[n] > 0; });
+  var html = '<div class="page-title">🏡 我的花园</div><div class="card"><h2>🌱 我的植物</h2>';
+  if(names.length === 0){
+    html += '<div class="garden-empty"><div class="big">🪴</div>'
+          + '<p>花园里还空空的～<br>去商店选购喜欢的植物吧！</p>'
+          + '<button class="btn-primary" data-act="nav" data-page="shop">🛒 去商店</button></div>';
+  }else{
+    html += '<div class="garden-grid">';
+    for(var i=0;i<names.length;i++){
+      var n = names[i], p = null;
+      for(var j=0;j<PLANTS.length;j++) if(PLANTS[j].name === n) p = PLANTS[j];
+      html += '<div class="g-item"><div class="emo">'+(p?p.emoji:'🌱')+'</div>'
+            + '<div class="name">'+n+'</div>'
+            + '<div class="count">× '+state.plants[n]+'</div></div>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  $('page-garden').innerHTML = html;
+}
+
+/* ---------- 18. 小游戏与运动打卡（对对碰 / 抓大鹅 / 运动打卡） ---------- */
+
+/* ===== 18.1 运动打卡 ===== */
+/* 打卡清单：想增删项目，只改这个数组即可 */
+var SPORT_ITEMS = ['跳绳100下', '跑步10分钟', '坐位体前屈', '眼保健操', '拍球50下'];
+var SPORT_DAILY_CAP = 1;   // 运动打卡每天最多获得的阳光数（现为1次）
+var GAME_DAILY_LIMIT = 2;  // 对对碰 + 抓大鹅 每天合计最多领取的阳光奖励次数
+
+function pad2(n){ return (n<10?'0':'')+n; }
+/* 生成日期字符串：dayStr(0)=今天，dayStr(-1)=昨天 */
+function dayStr(offset){
+  var d = new Date();
+  d.setDate(d.getDate() + offset);
+  return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate());
+}
+function renderSport(){
+  var today = dayStr(0);
+  var doneMap = state.sportToday[today] || {};
+  var doneCount = 0;
+  for(var k in doneMap) if(doneMap[k]) doneCount++;
+  var claimed = (state.sportPointDay === today);   // 今日阳光是否已领过
+
+  var html = '<div class="page-title">🏃 运动打卡</div>'
+    + '<div class="card">'
+    +   '<h2>🏃 每日运动打卡</h2>'
+    +   '<div class="subtitle">' + today + ' · 每天可领 ' + SPORT_DAILY_CAP + '☀ · 已连续打卡 🔥 ' + (state.sportStreak||0) + ' 天</div>';
+  for(var i=0;i<SPORT_ITEMS.length;i++){
+    var done = !!doneMap[i];
+    html += '<button class="sport-item'+(done?' done':'')+'" data-act="sport-toggle" data-idx="'+i+'">'
+      +   '<span class="ico">'+(done?'✅':'⭕')+'</span>'
+      +   '<span class="txt">'+SPORT_ITEMS[i]+'</span>'
+      +   '<span class="ck">'+(done?'已完成':'去打卡')+'</span>'
+      + '</button>';
+  }
+  if(claimed) html += '<div class="progress-hint">今日运动阳光已领取 ✅ 继续坚持运动，身体棒棒！</div>';
+  /* 最近 7 天打卡记录（小圆点） */
+  html += '<div class="progress-hint" style="margin-top:14px">最近7天打卡记录</div><div class="week-dots">';
+  for(var d=6;d>=0;d--){
+    var ds = dayStr(-d);
+    var on = (state.sportHistory[ds]||0) > 0;
+    var lbl = (d===0) ? '今天' : ds.slice(5);
+    html += '<div class="day-dot'+(on?' on':'')+'"><div class="d">'+(on?'✓':'·')+'</div><div class="l">'+lbl+'</div></div>';
+  }
+  html += '</div></div>';
+  $('page-sport').innerHTML = html;
+}
+/* 点击某项：完成 / 取消完成（取消不扣积分，防刷分靠“每日上限”控制） */
+function sportToggle(idx){
+  var today = dayStr(0);
+  if(!state.sportToday[today]) state.sportToday[today] = {};
+  var doneMap = state.sportToday[today];
+  if(doneMap[idx]){
+    delete doneMap[idx];
+    save(); renderSport();
+    return;
+  }
+  doneMap[idx] = true;
+  var cnt = 0;
+  for(var k in doneMap) if(doneMap[k]) cnt++;
+  /* 连续天数：今天第一次打卡时计算（昨天打过 → +1，否则重新开始数） */
+  if(cnt === 1 && state.sportLastDay !== today){
+    state.sportStreak = (state.sportLastDay === dayStr(-1)) ? (state.sportStreak||0) + 1 : 1;
+    state.sportLastDay = today;
+  }
+  state.sportHistory[today] = cnt;
+  /* 只保留最近 45 天历史，防止 localStorage 无限膨胀 */
+  var keys = Object.keys(state.sportHistory).sort();
+  while(keys.length > 45){ delete state.sportHistory[keys[0]]; keys.shift(); }
+  save();
+  /* 每天只能领 1 次阳光：以“领取日期”为准，取消再打卡也不会重复发 */
+  if(state.sportPointDay !== today){
+    state.sportPointDay = today;
+    save();
+    addPoints(1, '运动打卡');
+  }else{
+    toast('已完成「'+SPORT_ITEMS[idx]+'」！今日运动阳光已领过，明天再来～');
+  }
+  renderSport();
+}
+
+/* ===== 小游戏每日奖励（对对碰 + 抓大鹅 合计每天最多 GAME_DAILY_LIMIT 次） ===== */
+function gameRewardLeft(){
+  var today = dayStr(0);
+  return Math.max(0, GAME_DAILY_LIMIT - (state.gameRewards[today] || 0));
+}
+/* 领取一次小游戏阳光奖励；返回是否真正领到（当天领完则只提示、不扣次数） */
+function claimGameReward(points, reason){
+  var today = dayStr(0);
+  var used = state.gameRewards[today] || 0;
+  if(used >= GAME_DAILY_LIMIT){
+    toast('今日小游戏奖励已领完（每天'+GAME_DAILY_LIMIT+'次），明天再来～');
+    return false;
+  }
+  state.gameRewards[today] = used + 1;
+  /* 只保留最近 45 天记录，防止 localStorage 无限膨胀 */
+  var keys = Object.keys(state.gameRewards).sort();
+  while(keys.length > 45){ delete state.gameRewards[keys[0]]; keys.shift(); }
+  save();
+  addPoints(points, reason);
+  return true;
+}
+
+/* ===== 18.2 对对碰（记忆翻牌） ===== */
+/* 三档难度：简单 4×3=12张(6对) / 普通 4×4=16张(8对) / 困难 5×4=20张(10对) */
+var MATCH_LEVELS = {
+  easy:  {name:'简单', pairs:6,  cols:4},
+  normal:{name:'普通', pairs:8,  cols:4},
+  hard:  {name:'困难', pairs:10, cols:5}
+};
+/* 牌面图案（植物大战僵尸主题，按顺序取前 pairs 个） */
+var MATCH_EMOJIS = ['🌻','🧟','🌰','🍒','🌶️','🌱','🦆','🎯','👻','⭐'];
+/* 本局游戏状态（内存态，刷新页面重开一局） */
+var game = { match:{ level:'normal', cards:[], matchedSet:{}, first:-1, second:-1, lock:false, steps:0, startTime:0, finished:false, matched:0, result:null } };
+
+function shuffle(arr){
+  for(var i=arr.length-1;i>0;i--){
+    var j = Math.floor(Math.random()*(i+1));
+    var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  }
+  return arr;
+}
+function startMatch(level){
+  var conf = MATCH_LEVELS[level];
+  var pool = MATCH_EMOJIS.slice(0, conf.pairs);
+  game.match = {
+    level:level, cards:shuffle(pool.concat(pool)), matchedSet:{},
+    first:-1, second:-1, lock:false, steps:0,
+    startTime:Date.now(), finished:false, matched:0, result:null
+  };
+  renderMatch();
+}
+/* 星级评定：steps=翻牌回合数（翻两张算一步），全对无失误 = pairs 步
+   3⭐=失误很少(≤pairs+2步)  2⭐=一般(≤1.5倍)  1⭐=再加油 */
+function matchStars(steps, pairs){
+  if(steps <= pairs + 2) return 3;
+  if(steps <= Math.ceil(pairs * 1.5)) return 2;
+  return 1;
+}
+function renderMatch(){
+  var m = game.match, conf = MATCH_LEVELS[m.level];
+  var started = (m.steps > 0 || m.first !== -1 || m.finished);
+  var best = state.matchBest[m.level];
+  var lvHtml = '';
+  for(var key in MATCH_LEVELS){
+    var lv = MATCH_LEVELS[key];
+    lvHtml += '<button class="pill small'+(m.level===key?' lv-active':'')+'" data-act="match-level" data-level="'+key+'">'+lv.name+'</button>';
+  }
+  var html = '<div class="page-title">🎯 对对碰</div>'
+    + '<div class="card">'
+    +   '<h2>🎯 记忆翻牌</h2>'
+    +   '<div class="subtitle">翻开两张卡牌，图案相同就配对成功，每配对一对 +1☀～</div>'
+    +   '<div class="level-row">'+lvHtml+'</div>'
+    +   '<div class="duck-hud">'
+    +     '<div class="hud-box"><div class="v">'+conf.name+'</div><div class="k">当前难度</div></div>'
+    +     '<div class="hud-box"><div class="v">'+m.matched+'/'+conf.pairs+'</div><div class="k">已配对</div></div>'
+    +     '<div class="hud-box"><div class="v">'+m.steps+'</div><div class="k">翻牌步数</div></div>'
+    +   '</div>';
+  if(best) html += '<div class="progress-hint">本难度最佳纪录：'+best.steps+' 步 / '+best.time+' 秒</div>';
+  html += '<div class="progress-hint">今日小游戏奖励还剩 '+gameRewardLeft()+' 次（每天最多'+GAME_DAILY_LIMIT+'次）</div>';
+  /* 牌桌 */
+  html += '<div class="match-grid cols'+conf.cols+'">';
+  for(var i=0;i<m.cards.length;i++){
+    var isOpen = (m.first===i || m.second===i);
+    var isMatched = !!m.matchedSet[i];
+    var cls = 'flip' + ((isOpen||isMatched) ? ' flipped' : '') + (isMatched ? ' matched' : '');
+    html += '<button class="'+cls+'" data-act="match-card" data-i="'+i+'"'
+          + ((isOpen||isMatched||m.lock||m.finished)?' disabled':'') + '>'
+          +   '<span class="inner">'
+          +     '<span class="face back">🌻</span>'
+          +     '<span class="face front">'+m.cards[i]+'</span>'
+          +   '</span>'
+          + '</button>';
+  }
+  html += '</div>';
+  /* 结算 / 重开 */
+  if(m.finished && m.result){
+    html += '<div class="game-result">'
+      +   '<div class="big">🎉 全部配对成功！</div>'
+      +   '<div class="stars">'+('⭐'.repeat(m.result.stars))+'</div>'
+      +   '<div class="sub subtitle">用时 '+m.result.time+' 秒 · 用了 '+m.steps+' 步 · '
+      +     (m.result.capped ? '今日奖励已领完，本局无阳光' : '获得 ☀️ +'+m.result.points) + '</div>'
+      +   '<button class="btn-primary" data-act="match-restart">🔄 再玩一次</button>'
+      + '</div>';
+  }else if(started){
+    html += '<div style="text-align:center;margin-top:2px"><button class="pill small" data-act="match-restart">🔄 重新开始</button></div>';
+  }else{
+    html += '<div style="text-align:center;margin-top:2px"><button class="btn-primary" data-act="match-restart">▶ 开始游戏</button></div>';
+  }
+  html += '</div>';
+  $('page-match').innerHTML = html;
+}
+function matchCard(i){
+  var m = game.match;
+  if(m.lock || m.finished) return;
+  if(m.matchedSet[i] || m.first === i) return;    // 已配对/已翻开的不能重复点
+  if(m.first === -1){                              // 翻开第一张
+    m.first = i; renderMatch(); return;
+  }
+  m.second = i; m.steps++; m.lock = true; renderMatch();
+  if(m.cards[m.first] === m.cards[m.second]){
+    /* 配对成功：两张保持翻开，+1☀（静音加分，避免弹窗刷屏） */
+    m.matchedSet[m.first] = true; m.matchedSet[m.second] = true;
+    m.matched += 1;
+    m.first = m.second = -1; m.lock = false;
+    beep(true);
+    addPoints(1, '', true);
+    if(m.matched === MATCH_LEVELS[m.level].pairs){ finishMatch(); return; }
+    renderMatch();
+  }else{
+    /* 配对失败：0.8 秒后自动翻回 */
+    beep(false);
+    setTimeout(function(){
+      m.first = m.second = -1; m.lock = false; renderMatch();
+    }, 800);
+  }
+}
+function finishMatch(){
+  var m = game.match, conf = MATCH_LEVELS[m.level];
+  m.finished = true;
+  var secs = Math.max(1, Math.round((Date.now() - m.startTime)/1000));
+  var first = !state.matchDone[m.level];
+  var points = first ? 3 : 1;                 // 首次通关 +3☀，重复通关 +1☀
+  state.matchDone[m.level] = true;
+  var best = state.matchBest[m.level];
+  if(!best || m.steps < best.steps || (m.steps === best.steps && secs < best.time)){
+    state.matchBest[m.level] = {steps:m.steps, time:secs};
+  }
+  save();
+  var got = claimGameReward(points, first ? '首次通关「'+conf.name+'」难度' : '通关奖励');
+  m.result = {stars:matchStars(m.steps, conf.pairs), time:secs, points:got ? points : 0, first:first, capped:!got};
+  renderMatch();
+}
+
+/* ===== 18.3 抓大鹅（限时反应游戏） ===== */
+var DUCK_TIME = 60;        // 每局 60 秒
+var DUCK_MAX_POINTS = 10;  // 单局最多兑换 10☀（得分每 5 分换 1☀）
+var duckGame = { score:0, timeLeft:DUCK_TIME, active:false, timer:null, spawnTimer:null, holes:[], result:null };
+
+function renderDuck(){
+  var g = duckGame;
+  var html = '<div class="page-title">🦆 抓大鹅</div>'
+    + '<div class="card">'
+    +   '<h2>🦆 抓大鹅</h2>'
+    +   '<div class="subtitle">大鹅🦆从洞里冒出来，快点它！+1分；点到僵尸🧟扣2分。60秒结束，每5分换1☀（最多'+DUCK_MAX_POINTS+'☀）</div>'
+    +   '<div style="display:flex;gap:8px;margin:4px 0 2px">'
+    +     '<button class="pill small'+(state.soundOn?' lv-active':'')+'" data-act="duck-sound">'+(state.soundOn?'🔊 音效开':'🔇 音效关')+'</button>'
+    +     '<button class="pill small" data-act="duck-start">'+(g.active?'🔄 重新开始':'▶ 开始游戏')+'</button>'
+    +   '</div>'
+    +   '<div class="duck-hud">'
+    +     '<div class="hud-box"><div class="v" id="duckScore">'+g.score+'</div><div class="k">当前得分</div></div>'
+    +     '<div class="hud-box"><div class="v" id="duckTime">'+g.timeLeft+'</div><div class="k">剩余秒数</div></div>'
+    +     '<div class="hud-box"><div class="v">'+(state.duckBest||0)+'</div><div class="k">最高分</div></div>'
+    +   '</div>'
+    +   '<div class="progress-hint">今日小游戏奖励还剩 '+gameRewardLeft()+' 次（每天最多'+GAME_DAILY_LIMIT+'次）</div>'
+    +   '<div class="duck-grid" id="duckGrid">';
+  for(var i=0;i<9;i++){
+    html += '<div class="hole" data-act="duck-hit" data-i="'+i+'"><span class="duck-pop"></span></div>';
+  }
+  html += '</div>';
+  if(g.result){
+    html += '<div class="game-result">'
+      +   '<div class="big">⏰ 时间到！</div>'
+      +   '<div class="sub subtitle">本局得分 '+g.result.score+' 分'+(g.result.isBest?'（新纪录！🎉）':'')
+      +     (g.result.capped ? ' · 今日奖励已领完，本局无阳光' : ' · 兑换 ☀️ +'+g.result.points)+'</div>'
+      +   '<button class="btn-primary" data-act="duck-start">🔄 再玩一次</button>'
+      + '</div>';
+  }
+  html += '</div>';
+  $('page-duck').innerHTML = html;
+  /* 记住 9 个洞，方便后续直接操作 DOM（不整页重绘，保证动画流畅） */
+  duckGame.holes = [];
+  var list = document.querySelectorAll('#page-duck .hole');
+  for(var h=0;h<list.length;h++) duckGame.holes.push(list[h]);
+}
+function startDuck(){
+  stopDuckGame();
+  duckGame.score = 0; duckGame.timeLeft = DUCK_TIME; duckGame.active = true; duckGame.result = null;
+  renderDuck();
+  /* 倒计时 */
+  duckGame.timer = setInterval(function(){
+    duckGame.timeLeft--;
+    var t = $('duckTime'); if(t) t.textContent = duckGame.timeLeft;
+    if(duckGame.timeLeft <= 0) endDuck();
+  }, 1000);
+  scheduleDuckSpawn();
+}
+/* 冒出速度随时间加快：第1秒约1.1秒一只，第60秒约0.45秒一只 */
+function scheduleDuckSpawn(){
+  var delay = Math.max(450, 1100 - (DUCK_TIME - duckGame.timeLeft) * 12);
+  duckGame.spawnTimer = setTimeout(function(){
+    if(!duckGame.active) return;
+    popDuck();
+    scheduleDuckSpawn();
+  }, delay);
+}
+function popDuck(){
+  var i = Math.floor(Math.random() * duckGame.holes.length);
+  var hole = duckGame.holes[i];
+  if(!hole) return;
+  var pop = hole.querySelector('.duck-pop');
+  if(!pop || pop.classList.contains('show')) return;   // 这个洞正占着，换下次
+  var isDuck = Math.random() < 0.62;                    // 62% 出大鹅，38% 出僵尸
+  pop.textContent = isDuck ? '🦆' : '🧟';
+  pop.dataset.type = isDuck ? 'duck' : 'zombie';
+  pop.dataset.done = '';
+  pop.classList.add('show');
+  /* 停留时间也随时间缩短 */
+  var stay = Math.max(520, 800 - (DUCK_TIME - duckGame.timeLeft) * 5);
+  setTimeout(function(){
+    pop.classList.remove('show');
+    pop.dataset.done = '';
+  }, stay);
+}
+function duckHit(i){
+  if(!duckGame.active) return;
+  var hole = duckGame.holes[i];
+  if(!hole) return;
+  var pop = hole.querySelector('.duck-pop');
+  if(!pop || !pop.classList.contains('show') || pop.dataset.done === '1') return;
+  pop.dataset.done = '1';                                // 防止一只被连点两次
+  pop.classList.remove('show');
+  if(pop.dataset.type === 'duck'){
+    duckGame.score += 1;
+    beep(true);
+  }else{
+    duckGame.score = Math.max(0, duckGame.score - 2);
+    beep(false);
+    var grid = $('duckGrid');
+    if(grid){ grid.classList.add('shake'); setTimeout(function(){ grid.classList.remove('shake'); }, 300); }
+  }
+  var s = $('duckScore'); if(s) s.textContent = duckGame.score;
+}
+function endDuck(){
+  duckGame.active = false;
+  clearInterval(duckGame.timer); clearTimeout(duckGame.spawnTimer);
+  /* 全部洞收起 */
+  for(var i=0;i<duckGame.holes.length;i++){
+    var pop = duckGame.holes[i].querySelector('.duck-pop');
+    if(pop){ pop.classList.remove('show'); pop.dataset.done = ''; }
+  }
+  var pts = Math.min(DUCK_MAX_POINTS, Math.floor(duckGame.score / 5));
+  var isBest = duckGame.score > (state.duckBest || 0);
+  if(isBest){ state.duckBest = duckGame.score; }
+  save();
+  var got = false;
+  if(pts > 0) got = claimGameReward(pts, '抓大鹅奖励');   // 受每日次数限制
+  else toast('得分不足 5 分，没有阳光～再来一次！');
+  duckGame.result = {score:duckGame.score, points:got ? pts : 0, isBest:isBest, capped:(pts > 0 && !got)};
+  renderDuck();
+}
+/* 离开页面时结束本局（不发奖励，防止挂机刷分） */
+function stopDuckGame(){
+  if(!duckGame.active) return;
+  duckGame.active = false;
+  clearInterval(duckGame.timer); clearTimeout(duckGame.spawnTimer);
+  for(var i=0;i<duckGame.holes.length;i++){
+    var pop = duckGame.holes[i].querySelector('.duck-pop');
+    if(pop) pop.classList.remove('show');
+  }
+}
+function toggleSound(){
+  state.soundOn = !state.soundOn;
+  save();
+  renderDuck();
+  toast(state.soundOn ? '🔊 音效已开启' : '🔇 音效已关闭');
+}
+
+/* ===== 18.4 小游戏音效（Web Audio API，无需音频文件） ===== */
+function beep(ok){
+  if(!state.soundOn) return;
+  try{
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return;
+    if(!beep.ctx) beep.ctx = new AC();
+    var ctx = beep.ctx;
+    if(ctx.state === 'suspended') ctx.resume();
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.value = ok ? 880 : 160;          // 对=高音，错=低音
+    g.gain.setValueAtTime(0.12, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime + 0.18);
+  }catch(e){}
+}
+
+/* ---------- 19. 全局事件委托 ---------- */
+document.addEventListener('click', function(e){
+  var el = e.target.closest('[data-act]');
+  if(!el) return;
+  var act = el.dataset.act;
+  if(act === 'nav')            switchPage(el.dataset.page);
+  else if(act === 'open-pick') openPick(el.dataset.mode);
+  else if(act === 'pick-item') pickItem(parseInt(el.dataset.idx,10));
+  else if(act === 'answer')    handleAnswer(el.dataset.kind, parseInt(el.dataset.q,10), parseInt(el.dataset.o,10));
+  else if(act === 'next')      nextQ(el.dataset.kind);
+  else if(act === 'open-record') openRecord();
+  else if(act === 'rec-toggle')  toggleRec();
+  else if(act === 'rec-submit')  submitRecitation();
+  else if(act === 'close-mask')  closeMask(el.dataset.target);
+  else if(act === 'buy')         buyPlant(el.dataset.plant);
+  /* ---- 运动打卡 / 对对碰 / 抓大鹅 ---- */
+  else if(act === 'sport-toggle') sportToggle(parseInt(el.dataset.idx,10));
+  else if(act === 'match-level')  startMatch(el.dataset.level);
+  else if(act === 'match-restart') startMatch(game.match.level);
+  else if(act === 'match-card')   matchCard(parseInt(el.dataset.i,10));
+  else if(act === 'duck-start')   startDuck();
+  else if(act === 'duck-hit')     duckHit(parseInt(el.dataset.i,10));
+  else if(act === 'duck-sound')   toggleSound();
+});
+/* 点击遮罩空白处关闭弹窗 */
+var masks = document.querySelectorAll('.mask');
+for(var mi=0; mi<masks.length; mi++){
+  masks[mi].addEventListener('click', function(e){
+    if(e.target === this) closeMask(this.id);
+  });
+}
+
+/* ---------- 20. 初始化 ---------- */
+(function init(){
+  buildSidebar();
+  buildPickList();
+  renderHeader();
+  /* 自动定位到第一个未完成的课文/单元/古诗，刷新后接着学 */
+  var firstLesson = -1;
+  for(var i=0;i<LESSONS.length;i++){ if(state.lessonsDone.indexOf(i) === -1){ firstLesson = i; break; } }
+  view.lesson = (firstLesson > -1) ? firstLesson : 0;
+  view.lessonQ = firstUnanswered('L', view.lesson, LESSONS[view.lesson].qs.length);
+  for(var m=0;m<MATH_UNITS.length;m++){ if(state.mathDone.indexOf(m) === -1){ view.math = m; break; } }
+  view.mathQ = firstUnanswered('M', view.math, MATH_UNITS[view.math].qs.length);
+  for(var e=0;e<EN_UNITS.length;e++){ if(state.enDone.indexOf(e) === -1){ view.en = e; break; } }
+  view.enQ = firstUnanswered('E', view.en, EN_UNITS[view.en].qs.length);
+  for(var j=0;j<POEMS.length;j++){ if(state.poemsDone.indexOf(j) === -1){ view.poem = j; break; } }
+  view.poemQ = firstUnanswered('P', view.poem, POEMS[view.poem].qs.length);
+  startMatch('normal');   // 进入对对碰前先发好一局牌（默认普通难度）
+  switchPage('chinese');
+})();
+</script>
+</body>
+</html>
